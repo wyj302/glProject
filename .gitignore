@@ -1,0 +1,8 @@
+Debug/glProject.log
+Debug/glProject.tlog/cl.command.1.tlog
+Debug/glProject.tlog/CL.read.1.tlog
+*.log
+Debug/vc120.pdb
+Debug/vc120.idb
+Debug/main.obj
+*.tlog
