@@ -6,6 +6,7 @@
 //glfw
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "Shader.h"
 
 #pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 
@@ -59,6 +60,8 @@ int main(int argc, char* argv[])
 	}
 	glViewport(0, 0, 800, 600);
 
+#if 0
+
 	//vertex shader
 	GLuint vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -105,6 +108,9 @@ int main(int argc, char* argv[])
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+#endif
+
+	Shader shader("shader.vs", "shader.frag");
 
 	//vertex 
 	GLfloat vertices[] = 
@@ -190,8 +196,9 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//激活着色器
-		glUseProgram(shaderProgram);
-		
+		//glUseProgram(shaderProgram);
+		shader.Use();
+
 		//更新uniform颜色
 // 		GLfloat timeValue = glfwGetTime();
 // 		GLfloat greenValue = (sin(timeValue / 2) + 0.5f);
