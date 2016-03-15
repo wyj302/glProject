@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Shader.h"
+#include <soil.h>
 
 #pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 
@@ -115,10 +116,11 @@ int main(int argc, char* argv[])
 	//vertex 
 	GLfloat vertices[] = 
 	{
-		// position		   //color
-		0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // 右上角
-		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // 右下角
-	   -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f // 左上角
+		// position		   //color			 //texture
+		 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // 右上角
+		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // 右下角
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // 左上角
+		-0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f,  0.0f, 1.0f  // 左下角
 
 // 		// 第二个三角形
 // 		0.5f, -0.5f, 0.0f,  // 右下角
@@ -133,11 +135,12 @@ int main(int argc, char* argv[])
 // 		-0.5f, -0.5f, 0.0f,  // 左下角
 // 		-0.5f, 0.5f, 0.0f	// 左上
 // 	};
-// 	GLuint indices[] =
-// 	{
-// 		0, 1, 3,
-// 		1, 2, 3
-// 	};
+	GLuint indices[] =
+	{
+		0, 1, 3,
+		1, 2, 3
+	};
+
 
 	//VBO
 	GLuint VBO, VAO;
@@ -155,11 +158,11 @@ int main(int argc, char* argv[])
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	//EBO
-// 	GLuint EBO;
-// 	glGenBuffers(1, &EBO);
-// 
-// 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-// 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	GLuint EBO;
+	glGenBuffers(1, &EBO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	//设置顶点属性
 	/*
@@ -170,17 +173,66 @@ int main(int argc, char* argv[])
 		\param 步长
 		\param 位置数据在缓冲中起始位置的偏移量
 	*/
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
 	//颜色属性
-	glVertexAttribPointer(1, 3,GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GL_FLOAT)));
+	glVertexAttribPointer(1, 3,GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GL_FLOAT)));
 	glEnableVertexAttribArray(1);
+
+	//纹理属性
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GL_FLOAT)));
+	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);	
 
 	//解绑VAO
 	glBindVertexArray(0);
+
+	//加载纹理
+	int width, height;
+	unsigned char* image = SOIL_load_image("container.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+
+	GLuint texture0;
+	glGenTextures(1, &texture0);
+	glBindTexture(GL_TEXTURE_2D, texture0);
+
+	//纹理放置方式
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	//设置纹理过滤方式
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+
+	//释放纹理资源
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	//第二个纹理
+	image = SOIL_load_image("cawesomeface.png", &width, &height, 0, SOIL_LOAD_RGB);
+
+	GLuint texture1;
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+
+	//释放纹理资源
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 
 	//绘制模式
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -195,9 +247,20 @@ int main(int argc, char* argv[])
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		//绑定纹理
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture0);
+		glUniform1i(glGetUniformLocation(shader.Program, "ourTexture1"), 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glUniform1i(glGetUniformLocation(shader.Program, "ourTexture2"), 1);
+
 		//激活着色器
 		//glUseProgram(shaderProgram);
 		shader.Use();
+// 		GLfloat offset = 0.5f;
+// 		glUniform1f(glGetUniformLocation(shader.Program, "xOffset"), offset);
 
 		//更新uniform颜色
 // 		GLfloat timeValue = glfwGetTime();
@@ -205,10 +268,10 @@ int main(int argc, char* argv[])
 //		GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 //		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
-		//绘制
+		//绘制		
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		
 		//交换缓冲
