@@ -1,4 +1,4 @@
-
+ï»¿
 //glew
 #define		GLEW_STATIC
 #include <GL/glew.h>
@@ -20,6 +20,9 @@ const GLuint screenWidth = 800;
 const GLuint screenHeight = 600;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void do_movement();
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 //shaders
 const GLchar* vertexShaderSource = "#version 330 core \n"
@@ -41,6 +44,22 @@ const GLchar* fragmentShaderSource = "#version 330 core \n"
 "}\n\0";
 
 //------------------------------------------------------------
+
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.3f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+bool keys[1024];
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;
+
+bool firstMoust = true;
+GLfloat lastX = 400;
+GLfloat lasty = 800;
+
+GLfloat pitch = 0.0f;
+GLfloat yaw = 90.0f;
+GLfloat aspect = 45.0f;
+
 int main(int argc, char* argv[])
 {
 	glfwInit();
@@ -53,6 +72,10 @@ int main(int argc, char* argv[])
 	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	if (window == NULL)
 	{
@@ -71,7 +94,7 @@ int main(int argc, char* argv[])
 	//
 	glViewport(0, 0, screenWidth, screenHeight);
 
-	//Éî¶È²âÊÔ
+	//æ·±åº¦æµ‹è¯•
 	glEnable(GL_DEPTH_TEST);
 
 #if 0
@@ -172,23 +195,36 @@ int main(int argc, char* argv[])
 		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f
 	};
 
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(2.0f, 5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f, 3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f, 2.0f, -2.5f),
+		glm::vec3(1.5f, 0.2f, -1.5f),
+		glm::vec3(-1.3f, 1.0f, -1.5f)
+	};
+
 	//vertex 
 // 	GLfloat vertices[] = 
 // 	{
 // 		// position		   //color			 //texture
-// 		 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // ÓÒÉÏ½Ç
-// 		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // ÓÒÏÂ½Ç
-// 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // ×óÉÏ½Ç
-// 		-0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f,  0.0f, 1.0f  // ×óÏÂ½Ç
+// 		 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // å³ä¸Šè§’
+// 		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // å³ä¸‹è§’
+// 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // å·¦ä¸Šè§’
+// 		-0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f,  0.0f, 1.0f  // å·¦ä¸‹è§’
 
 //};
 // 	GLfloat vertices[] =
 // 	{
-// 		// µÚÒ»¸öÈı½ÇĞÎ
-// 		0.5f, 0.5f, 0.0f,   // ÓÒÉÏ½Ç
-// 		0.5f, -0.5f, 0.0f,  // ÓÒÏÂ½Ç
-// 		-0.5f, -0.5f, 0.0f,  // ×óÏÂ½Ç
-// 		-0.5f, 0.5f, 0.0f	// ×óÉÏ
+// 		// ç¬¬ä¸€ä¸ªä¸‰è§’å½¢
+// 		0.5f, 0.5f, 0.0f,   // å³ä¸Šè§’
+// 		0.5f, -0.5f, 0.0f,  // å³ä¸‹è§’
+// 		-0.5f, -0.5f, 0.0f,  // å·¦ä¸‹è§’
+// 		-0.5f, 0.5f, 0.0f	// å·¦ä¸Š
 // 	};
 // 	GLuint indices[] =
 // 	{
@@ -199,17 +235,17 @@ int main(int argc, char* argv[])
 
 	//VBO
 	GLuint VBO, VAO;
-	//Éú³ÉID
+	//ç”ŸæˆID
 	glGenBuffers(1, &VBO);	
 	glGenVertexArrays(1, &VAO);
 
-	//°ó¶¨VAO
+	//ç»‘å®šVAO
 	glBindVertexArray(VAO);
 
-	//»º³åÇø°ó¶¨µ½ GL_ARRAY_BUFFER
+	//ç¼“å†²åŒºç»‘å®šåˆ° GL_ARRAY_BUFFER
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	//°Ñ¶¥µãÊı×é¸´ÖÆµ½»º³åÖĞÌá¹©¸øOpenGLÊ¹ÓÃ
+	//æŠŠé¡¶ç‚¹æ•°ç»„å¤åˆ¶åˆ°ç¼“å†²ä¸­æä¾›ç»™OpenGLä½¿ç”¨
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	//EBO
@@ -219,32 +255,32 @@ int main(int argc, char* argv[])
 // 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 // 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	//ÉèÖÃ¶¥µãÊôĞÔ
+	//è®¾ç½®é¡¶ç‚¹å±æ€§
 	/*
-		\param ÅäÖÃÄÇÒ»¸ö¶¥µãÊôĞÔ,location = 0;
-		\param ¶¥µãÊôĞÔ´óĞ¡£¬vec3,3¸ö
-		\param Ö¸¶¨Êı¾İÀàĞÍ
-		\param Êı¾İÊÇ·ñ±»±ê×¼»¯
-		\param ²½³¤
-		\param Î»ÖÃÊı¾İÔÚ»º³åÖĞÆğÊ¼Î»ÖÃµÄÆ«ÒÆÁ¿
+		\param é…ç½®é‚£ä¸€ä¸ªé¡¶ç‚¹å±æ€§,location = 0;
+		\param é¡¶ç‚¹å±æ€§å¤§å°ï¼Œvec3,3ä¸ª
+		\param æŒ‡å®šæ•°æ®ç±»å‹
+		\param æ•°æ®æ˜¯å¦è¢«æ ‡å‡†åŒ–
+		\param æ­¥é•¿
+		\param ä½ç½®æ•°æ®åœ¨ç¼“å†²ä¸­èµ·å§‹ä½ç½®çš„åç§»é‡
 	*/
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
-// 	//ÑÕÉ«ÊôĞÔ
+// 	//é¢œè‰²å±æ€§
 // 	glVertexAttribPointer(1, 3,GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GL_FLOAT)));
 // 	glEnableVertexAttribArray(1);
 
-	//ÎÆÀíÊôĞÔ
+	//çº¹ç†å±æ€§
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GL_FLOAT)));
 	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);	
 
-	//½â°óVAO
+	//è§£ç»‘VAO
 	glBindVertexArray(0);
 
-	//¼ÓÔØÎÆÀí
+	//åŠ è½½çº¹ç†
 	int width, height;
 	unsigned char* image = SOIL_load_image("container.jpg", &width, &height, 0, SOIL_LOAD_RGB);
 
@@ -252,11 +288,11 @@ int main(int argc, char* argv[])
 	glGenTextures(1, &texture0);
 	glBindTexture(GL_TEXTURE_2D, texture0);
 
-	//ÎÆÀí·ÅÖÃ·½Ê½
+	//çº¹ç†æ”¾ç½®æ–¹å¼
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	//ÉèÖÃÎÆÀí¹ıÂË·½Ê½
+	//è®¾ç½®çº¹ç†è¿‡æ»¤æ–¹å¼
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -264,11 +300,11 @@ int main(int argc, char* argv[])
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 
-	//ÊÍ·ÅÎÆÀí×ÊÔ´
+	//é‡Šæ”¾çº¹ç†èµ„æº
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	//µÚ¶ş¸öÎÆÀí
+	//ç¬¬äºŒä¸ªçº¹ç†
 	image = SOIL_load_image("cawesomeface.png", &width, &height, 0, SOIL_LOAD_RGB);
 
 	GLuint texture1;
@@ -284,7 +320,7 @@ int main(int argc, char* argv[])
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 
-	//ÊÍ·ÅÎÆÀí×ÊÔ´
+	//é‡Šæ”¾çº¹ç†èµ„æº
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -294,22 +330,26 @@ int main(int argc, char* argv[])
 // 	trans = glm::rotate(trans, (GLfloat)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	
 
-	//»æÖÆÄ£Ê½
+	//ç»˜åˆ¶æ¨¡å¼
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
 	//
 	while (!glfwWindowShouldClose(window))
 	{
-		//¼ì²é¼°µ÷ÓÃÊÂ¼ş
+		//æ£€æŸ¥åŠè°ƒç”¨äº‹ä»¶
 		glfwPollEvents();
+		
+		do_movement();
 
-		//äÖÈ¾
+		//æ¸²æŸ“
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
+		GLfloat currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 
-
-		//°ó¶¨ÎÆÀí
+		//ç»‘å®šçº¹ç†
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture0);
 		glUniform1i(glGetUniformLocation(shader.Program, "ourTexture1"), 0);
@@ -318,47 +358,43 @@ int main(int argc, char* argv[])
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glUniform1i(glGetUniformLocation(shader.Program, "ourTexture2"), 1);
 
-		//¼¤»î×ÅÉ«Æ÷		
+		//æ¿€æ´»ç€è‰²å™¨		
 		shader.Use();
 
-// 		glm::mat4 trans;
-// 		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-// 		trans = glm::rotate(trans, (GLfloat)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-		glm::mat4 model;
-		model = glm::rotate(model, (GLfloat)glfwGetTime() * glm::radians(-55.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
+		//camera
 		glm::mat4 view;
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		GLfloat radius = 10.0f;
+		GLfloat camX = sin(glfwGetTime()) * radius;
+		GLfloat camZ = cos(glfwGetTime()) * radius;
+		
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth/(GLfloat)screenHeight, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(aspect), (GLfloat)screenWidth/(GLfloat)screenHeight, 0.1f, 100.0f);
 
 
 		GLuint modelLoc = glGetUniformLocation(shader.Program, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
 		GLuint viewLoc = glGetUniformLocation(shader.Program, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
 		GLuint projectionLoc = glGetUniformLocation(shader.Program, "projection");
+
+				
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));	
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-
-		//¸üĞÂuniformÑÕÉ«
-// 		GLfloat timeValue = glfwGetTime();
-// 		GLfloat greenValue = (sin(timeValue / 2) + 0.5f);
-//		GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-//		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
-
-
-		//»æÖÆ		
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		for (GLuint i = 0; i < 10; i++)
+		{			
+			glm::mat4 model;
+			model = glm::translate(model, cubePositions[i]);
+			GLfloat angle = 20.0f * i;
+			model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		glBindVertexArray(0);
 		
-		//½»»»»º³å
+		//äº¤æ¢ç¼“å†²
 		glfwSwapBuffers(window);
 	}
 
@@ -376,4 +412,92 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
+
+	if (key >= 0 && key < 1024)
+	{
+		if (action == GLFW_PRESS)
+		{
+			keys[key] = true;
+		}
+		else
+		{
+			keys[key] = false;
+		}
+	}
+	
+}
+void do_movement()
+{
+	GLfloat cameraSpeed = 5.0f * deltaTime;
+	if (keys[GLFW_KEY_W])
+	{
+		cameraPos += cameraSpeed * cameraFront;
+	}
+
+	if (keys[GLFW_KEY_S])
+	{
+		cameraPos -= cameraSpeed * cameraFront;
+	}
+	if (keys[GLFW_KEY_A])
+	{
+		glm::vec3 left = glm::normalize(glm::cross(cameraFront, cameraUp));
+		cameraPos -= left * cameraSpeed;
+	}
+	if (keys[GLFW_KEY_D])
+	{
+		glm::vec3 right = glm::normalize(glm::cross(cameraFront, cameraUp));
+		cameraPos += right * cameraSpeed;
+	}
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMoust)
+	{
+		lastX = xpos;
+		lasty = ypos;
+		firstMoust = false;
+	}
+
+	GLfloat xoffset = xpos - lastX;
+	GLfloat yoffset = ypos - lasty;
+
+	lastX = xpos;
+	lasty = ypos;
+
+	GLfloat sensitivity = 0.05f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	yaw += xoffset;
+	pitch += yoffset;
+
+	if (pitch > 89.0f)
+	{
+		pitch = 89.0f;
+	}
+	if (pitch < -89.0f)
+	{
+		pitch = -89.0f;
+	}
+	glm::vec3 front;
+
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+
+	cameraFront = glm::normalize(front);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	std::cout << yoffset << std::endl;
+	if (aspect >= 1.0f && aspect <= 45.0f)
+		aspect -= yoffset;
+
+	if (aspect <= 1.0f)
+		aspect = 1.0f;
+
+	if (aspect >= 45.0f)
+		aspect = 45.0f;
 }
