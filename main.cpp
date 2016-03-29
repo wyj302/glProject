@@ -21,9 +21,9 @@ const GLuint screenWidth = 800;
 const GLuint screenHeight = 600;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
-void do_movement();
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void do_movement();
 //------------------------------------------------------------
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
@@ -58,6 +58,8 @@ int main(int argc, char* argv[])
 
 	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
+
+	//callback functions
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -238,7 +240,7 @@ int main(int argc, char* argv[])
 		do_movement();
 
 		//
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.2f, 0.2, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		GLfloat currentFrame = glfwGetTime();
@@ -318,10 +320,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		{
 			keys[key] = true;
 		}
-		else
+		else if (action == GLFW_RELEASE)
 		{
 			keys[key] = false;
-		}
+		}		
 	}
 	
 }
