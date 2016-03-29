@@ -23,5 +23,8 @@
     <ClInclude Include="Shader.h">
       <Filter>源文件</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
