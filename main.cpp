@@ -257,6 +257,36 @@ int main(int argc, char* argv[])
 		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
 		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
 			
+
+		//material 
+		GLint matAmbientLoc = glGetUniformLocation(lightingShader.Program, "material.ambient");
+		GLint matDiffuseLoc = glGetUniformLocation(lightingShader.Program, "material.diffuse");
+		GLint matSpecularLoc = glGetUniformLocation(lightingShader.Program, "material.specular");
+		GLint matShininessLoc = glGetUniformLocation(lightingShader.Program, "material.shininess");
+		glUniform3f(matAmbientLoc, 1.0f, 0.5f, 0.31f);
+		glUniform3f(matDiffuseLoc, 1.0f, 0.5f, 0.31f);
+		glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
+		glUniform1f(matShininessLoc, 32.0f);
+
+		//light
+		GLint lightAmbientLoc = glGetUniformLocation(lightingShader.Program, "light.ambient");
+		GLint lightDiffuseLoc = glGetUniformLocation(lightingShader.Program, "light.diffuse");
+		GLint lightSpecularLoc = glGetUniformLocation(lightingShader.Program, "light.specular");
+		glUniform3f(lightAmbientLoc, 0.2f, 0.2f, 0.2f);
+		glUniform3f(lightDiffuseLoc, 0.5f, 0.5f, 0.5f);
+		glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
+
+		glm::vec3 lightColor;
+		lightColor.x = sin(glfwGetTime() * 2.0f);
+		lightColor.y = sin(glfwGetTime() * 0.7f);
+		lightColor.z = sin(glfwGetTime() * 1.3f);
+
+		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+		glm::vec3 ambientColor = diffuseColor* glm::vec3(0.2f);
+		glUniform3f(lightAmbientLoc, ambientColor.x, ambientColor.y, ambientColor.z);
+		glUniform3f(lightDiffuseLoc, diffuseColor.x, diffuseColor.y, diffuseColor.z);
+		
+
 		//camera
 		glm::mat4 view;
 		view = camera.GetViewMatrix();				
@@ -276,8 +306,8 @@ int main(int argc, char* argv[])
 		//viewpos campos
 		GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
 		glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
-
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));	
+
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		glBindVertexArray(containerVAO);					
