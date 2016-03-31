@@ -187,7 +187,19 @@ int main(int argc, char* argv[])
 		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
 	};
 
-
+	glm::vec3 cubePositions[10] =
+	{
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(2.0f, 5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f, 3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f, 2.0f, -2.5f),
+		glm::vec3(1.5f, 0.2f, -1.5f),
+		glm::vec3(-1.3f, 1.0f, -1.5f)
+	};
 
 	//VBO
 	GLuint VBO, containerVAO;
@@ -283,6 +295,7 @@ int main(int argc, char* argv[])
 		
 	GLint matSpecularLoc = glGetUniformLocation(lightingShader.Program, "material.spceular");
 	glUniform1i(matSpecularLoc, 1);
+	
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -291,7 +304,7 @@ int main(int argc, char* argv[])
 		do_movement();
 
 		//
-		glClearColor(0.2f, 0.2, 0.2f, 1.0f);
+		glClearColor(0.1f, 0.1, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		GLfloat currentFrame = glfwGetTime();
@@ -301,7 +314,14 @@ int main(int argc, char* argv[])
 		lightingShader.Use();
 		//lightpos
 		GLint lightPosLoc = glGetUniformLocation(lightingShader.Program, "light.position");
-		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+		GLint lightSpotdirLoc = glGetUniformLocation(lightingShader.Program, "light.direction");
+		GLint lightSpotCutOffLoc = glGetUniformLocation(lightingShader.Program, "light.cutOff");
+		GLint lightouterCutOffLoc = glGetUniformLocation(lightingShader.Program, "light.outerCutOff");
+
+		glUniform3f(lightPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
+		glUniform3f(lightSpotdirLoc, camera.Front.x, camera.Front.y, camera.Front.z);
+		glUniform1f(lightSpotCutOffLoc, glm::cos(glm::radians(12.5f)));
+		glUniform1f(lightouterCutOffLoc, glm::cos(glm::radians(17.5f)));
 
 		//viewpos campos
 		GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
@@ -313,8 +333,16 @@ int main(int argc, char* argv[])
 		GLint lightDiffuseLoc = glGetUniformLocation(lightingShader.Program, "light.diffuse");
 		GLint lightSpecularLoc = glGetUniformLocation(lightingShader.Program, "light.specular");
 		glUniform3f(lightAmbientLoc, 0.2f, 0.2f, 0.2f);
-		glUniform3f(lightDiffuseLoc, 0.5f, 0.5f, 0.5f);
+		glUniform3f(lightDiffuseLoc, 0.8f, 0.8f, 0.8f);
 		glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
+
+		GLint lightConstantLoc = glGetUniformLocation(lightingShader.Program, "light.constant");
+		GLint lightLinearLoc = glGetUniformLocation(lightingShader.Program, "light.linear");
+		GLint lightQuadraticLoc = glGetUniformLocation(lightingShader.Program, "light.quadratic");
+
+		glUniform1f(lightConstantLoc, 1.0f);
+		glUniform1f(lightLinearLoc, 0.09f);
+		glUniform1f(lightQuadraticLoc, 0.032);
 
 		//material 		
 		GLint matSpecularLoc = glGetUniformLocation(lightingShader.Program, "material.specular");
@@ -322,6 +350,7 @@ int main(int argc, char* argv[])
 		
 		glUniform3f(matSpecularLoc, 0.5f, 0.5f, 0.5f);
 		glUniform1f(matShininessLoc, 32);				
+
 
 		//camera
 		glm::mat4 view;
@@ -346,10 +375,21 @@ int main(int argc, char* argv[])
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, specularMap);
 
-		glBindVertexArray(containerVAO);					
-		glm::mat4 model;						
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 36);		
+		glBindVertexArray(containerVAO);	
+
+		
+		glm::mat4 model;
+		for (size_t i = 0; i < 10; i++)
+		{
+			model = glm::mat4();
+			model = glm::translate(model, cubePositions[i]);
+			GLfloat angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+										
+				
 		glBindVertexArray(0);
 		
 		//draw lamp object
