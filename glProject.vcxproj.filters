@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{e80a0978-de8a-4291-8c57-a66aa7d0162c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -26,5 +29,25 @@
     <ClInclude Include="Camera.h">
       <Filter>源文件</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Debug\model.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\model.vs">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\lamp.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\lamp.vs">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
