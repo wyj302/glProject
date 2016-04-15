@@ -49,5 +49,11 @@
     <None Include="Debug\lamp.vs">
       <Filter>shaders</Filter>
     </None>
+    <None Include="Debug\depth.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\depth.vs">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
