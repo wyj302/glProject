@@ -87,6 +87,7 @@
     <None Include="Debug\lamp.vs" />
     <None Include="Debug\model.frag" />
     <None Include="Debug\model.vs" />
+    <None Include="Debug\ShaderSingleColor.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

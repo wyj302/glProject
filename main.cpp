@@ -56,6 +56,7 @@ glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 int main(int argc, char* argv[])
 {
+	//git diff test
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -93,8 +94,15 @@ int main(int argc, char* argv[])
 	//深度测试
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+
+	//模板测试
+	glEnable(GL_STENCIL_TEST);	
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
 	//	
 	Shader shader("depth.vs", "depth.frag");
+	Shader singleColor("depth.vs", "ShaderSingleColor.frag");
 	
 	#pragma region "object_initialization"
 
@@ -190,6 +198,9 @@ int main(int argc, char* argv[])
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glBindVertexArray(0);
 
+	#pragma endregion
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		//检查及调用事件
@@ -198,41 +209,73 @@ int main(int argc, char* argv[])
 
 		//
 		glClearColor(0.2f, 0.2, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		shader.Use();		
+		//
+		singleColor.Use();		
 		glm::mat4 model;
 		glm::mat4 view = camera.GetViewMatrix();
-		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
-		
+		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);				
+		glUniformMatrix4fv(glGetUniformLocation(singleColor.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(singleColor.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-		GLuint viewLoc = glGetUniformLocation(shader.Program, "view");
-		GLuint projectionLoc = glGetUniformLocation(shader.Program, "projection");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		shader.Use();
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-		// draw cube
-		glBindVertexArray(cubeVAO);
-		glBindTexture(GL_TEXTURE_2D, cubeTexture);
-		model = glm::translate(model, glm::vec3(-1.0f, 0.1f, -1.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));		
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		model = glm::mat4();
-		model = glm::translate(model, glm::vec3(2.0f, 0.1f, 0.0f)); // y 0.1 fix z-fighting
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
+		glStencilMask(0x00);
 		//draw plane
 		glBindVertexArray(planeVAO);
 		glBindTexture(GL_TEXTURE_2D, planeTexture);
 		model = glm::mat4();
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		//
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
+
+		// draw cube
+		glBindVertexArray(cubeVAO);
+		glBindTexture(GL_TEXTURE_2D, cubeTexture);
+		model = glm::translate(model, glm::vec3(-1.0f, 0.05f, -1.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));		
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(2.0f, 0.05f, 0.0f)); // y 0.1 fix z-fighting
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+		//绘制边框
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		glDisable(GL_DEPTH_TEST);
+		singleColor.Use();
+		GLfloat scale = 1.1;
+
+		glBindVertexArray(cubeVAO);
+		glBindTexture(GL_TEXTURE_2D, cubeTexture);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(-1.0f, 0.05f, -1.0f));
+		model = glm::scale(model, glm::vec3(scale, scale, scale));
+		glUniformMatrix4fv(glGetUniformLocation(singleColor.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(2.0f, 0.05f, 0.0f)); // y 0.1 fix z-fighting
+		model = glm::scale(model, glm::vec3(scale, scale, scale));
+		glUniformMatrix4fv(glGetUniformLocation(singleColor.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		glStencilMask(0xFF);
+		glEnable(GL_DEPTH_TEST);
 
 		//交换缓冲
 		glfwSwapBuffers(window);
@@ -266,6 +309,8 @@ GLuint loadTexture(GLchar* path)
 	return textureID;
 }
 
+
+#pragma region "User input"
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)

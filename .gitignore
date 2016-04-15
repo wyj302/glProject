@@ -6,3 +6,4 @@ Debug/vc120.pdb
 Debug/vc120.idb
 Debug/main.obj
 *.tlog
+*.g
