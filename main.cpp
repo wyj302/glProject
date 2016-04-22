@@ -107,8 +107,8 @@ int main(int argc, char* argv[])
 // 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	//	
-	Shader shader("depth.vs", "depth.frag");
-	Shader skyboxShader("skybox.vs", "skybox.frag");
+	Shader skyboxShader("depth.vs", "depth.frag");
+	Shader  shader("skybox.vs", "skybox.frag");
 	
 	#pragma region "object_initialization"
 
@@ -206,15 +206,6 @@ int main(int argc, char* argv[])
 		1.0f, -1.0f, 1.0f
 	};
 
-	//load texture		
-	std::vector<const GLchar*> faces;
-	faces.push_back("skybox/right.jpg");
-	faces.push_back("skybox/left.jpg");
-	faces.push_back("skybox/top.jpg");
-	faces.push_back("skybox/bottom.jpg");
-	faces.push_back("skybox/back.jpg");
-	faces.push_back("skybox/front.jpg");
-	GLuint cubemapTexture = loadCubemap(faces);
 
 	//draw cube
 	GLuint cubeVAO, cubeVBO;
@@ -243,6 +234,16 @@ int main(int argc, char* argv[])
 	
 	glBindVertexArray(0);
 
+
+
+	vector<const GLchar*> faces;
+	faces.push_back("skybox/right.jpg");
+	faces.push_back("skybox/left.jpg");
+	faces.push_back("skybox/top.jpg");
+	faces.push_back("skybox/bottom.jpg");
+	faces.push_back("skybox/back.jpg");
+	faces.push_back("skybox/front.jpg");
+	GLuint skyboxTexture = loadCubemap(faces);
 	#pragma endregion
 
 
@@ -273,7 +274,7 @@ int main(int argc, char* argv[])
 
 		// Cubes
 		glBindVertexArray(cubeVAO);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
@@ -286,7 +287,7 @@ int main(int argc, char* argv[])
 
 		//skybox cube
 		glBindVertexArray(skyboxVAO);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS);;
