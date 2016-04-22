@@ -116,48 +116,48 @@ int main(int argc, char* argv[])
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	GLfloat cubeVertices[] = {
-		// Back face
-		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // Bottom-left
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right
-		0.5f, -0.5f, -0.5f, 1.0f, 0.0f, // bottom-right         
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right
-		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // bottom-left
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
-		// Front face
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, // bottom-right
-		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, // top-right
-		0.5f, 0.5f, 0.5f, 1.0f, 1.0f, // top-right
-		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, // top-left
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
-		// Left face
-		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-right
-		-0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-left
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-right
-		-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-right
-		// Right face
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-left
-		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-right
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right         
-		0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-right
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // top-left
-		0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left     
-		// Bottom face
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
-		0.5f, -0.5f, -0.5f, 1.0f, 1.0f, // top-left
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, // bottom-left
-		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, // bottom-left
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-right
-		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
-		// Top face
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // bottom-right
-		0.5f, 0.5f, -0.5f, 1.0f, 1.0f, // top-right     
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, // bottom-right
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
-		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f  // bottom-left        
+		// Positions          // Normals
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+		0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+		0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+		0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+
+		-0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,
+
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+		0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
+		0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f
 	};
 
 	//skybox vertex
@@ -206,9 +206,7 @@ int main(int argc, char* argv[])
 		1.0f, -1.0f, 1.0f
 	};
 
-	//load texture
-	GLuint cubeTexture = loadTexture("container.jpg");
-	
+	//load texture		
 	std::vector<const GLchar*> faces;
 	faces.push_back("skybox/right.jpg");
 	faces.push_back("skybox/left.jpg");
@@ -225,14 +223,11 @@ int main(int argc, char* argv[])
 
 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
 	glBindVertexArray(cubeVAO);
-
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glBindVertexArray(0);
 
 	//draw skybox
@@ -259,45 +254,44 @@ int main(int argc, char* argv[])
 
 		//
 		glClearColor(0.2f, 0.2, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		//close depth buffer write
-		glDepthMask(GL_FALSE);
+
+		shader.Use();
+		glm::mat4 model;
+		glm::mat4 view = camera.GetViewMatrix();		
+		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniform3f(glGetUniformLocation(shader.Program, "cameraPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+
+
+		// Cubes
+		glBindVertexArray(cubeVAO);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+
+		//close depth buffer write	
+		glDepthFunc(GL_LEQUAL);
 		skyboxShader.Use();		
-	
-		glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);				
+		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));//实现cubemap 不移动，去掉视图矩阵的平移部分，用3X3部分去移动，		
 		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 		//skybox cube
 		glBindVertexArray(skyboxVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glUniform1i(glGetUniformLocation(shader.Program, "skybox"), 0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
-		glDepthMask(GL_TRUE);
+		glDepthFunc(GL_LESS);;
 
-		shader.Use();
-		glm::mat4 model;
-		view = camera.GetViewMatrix();
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-
-		// Cubes
-		glBindVertexArray(cubeVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glUniform1i(glGetUniformLocation(shader.Program, "texture_diffuse1"), 0);
-		glBindTexture(GL_TEXTURE_2D, cubeTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
+		
 
 		//交换缓冲
 		glfwSwapBuffers(window);

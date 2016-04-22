@@ -58,5 +58,11 @@
     <None Include="Debug\ShaderSingleColor.frag">
       <Filter>shaders</Filter>
     </None>
+    <None Include="Debug\skybox.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\skybox.vs">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

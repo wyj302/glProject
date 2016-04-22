@@ -88,6 +88,8 @@
     <None Include="Debug\model.frag" />
     <None Include="Debug\model.vs" />
     <None Include="Debug\ShaderSingleColor.frag" />
+    <None Include="Debug\skybox.frag" />
+    <None Include="Debug\skybox.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
