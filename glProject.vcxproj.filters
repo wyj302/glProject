@@ -64,5 +64,20 @@
     <None Include="Debug\skybox.vs">
       <Filter>shaders</Filter>
     </None>
+    <None Include="Debug\ubo.vs">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\ubo_bule.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\ubo_green.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\ubo_red.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\ubo_yellow.frag">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

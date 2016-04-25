@@ -2,6 +2,7 @@
 //glew
 #define		GLEW_STATIC
 #include <GL/glew.h>
+
 #include <cmath>
 
 //glfw
@@ -63,7 +64,7 @@ int main(int argc, char* argv[])
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
+	
 
 	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
@@ -92,24 +93,16 @@ int main(int argc, char* argv[])
 	//
 	glViewport(0, 0, screenWidth, screenHeight);
 
-// 	//面剔除
-//  	glEnable(GL_CULL_FACE);
-//  	glCullFace(GL_FRONT);
-//  	glFrontFace(GL_CCW); //GL_CCW：逆时针 GL_CW：顺时针
-
 	//深度测试
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);	
 
-	glEnable(GL_PROGRAM_POINT_SIZE_ARB);
-// 	//模板测试
-// 	glEnable(GL_STENCIL_TEST);	
-// 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-// 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	//	
-	Shader shader("depth.vs", "depth.frag");
-	//Shader  shader("skybox.vs", "skybox.frag");
+	Shader shaderRed("ubo.vs", "ubo_red.frag");
+	Shader shaderGreen("ubo.vs", "ubo_green.frag");
+	Shader shaderBlue("ubo.vs", "ubo_blue.frag");
+	Shader shaderYellow("ubo.vs", "ubo_yellow.frag");
+		
 	
 	#pragma region "object_initialization"
 
@@ -117,48 +110,47 @@ int main(int argc, char* argv[])
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	GLfloat cubeVertices[] = {
-		// Positions          // Normals
 		-0.5f, -0.5f, -0.5f,
-		0.5f, -0.5f, -0.5f, 
-		0.5f, 0.5f, -0.5f,  
-		0.5f, 0.5f, -0.5f,  
-		-0.5f, 0.5f, -0.5f, 
+		0.5f, 0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, 0.5f, -0.5f,
+
+		-0.5f, -0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f,
+		0.5f, 0.5f, 0.5f,
+		0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
+
+		-0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, 0.5f,
+		-0.5f, 0.5f, 0.5f,
+
+		0.5f, 0.5f, 0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f,
+
+		-0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
 		-0.5f, -0.5f, -0.5f,
 
-		-0.5f, -0.5f, 0.5f, 
-		0.5f, -0.5f, 0.5f,  
-		0.5f, 0.5f, 0.5f,   
-		0.5f, 0.5f, 0.5f,   
-		-0.5f, 0.5f, 0.5f,  
-		-0.5f, -0.5f, 0.5f, 
-
-		-0.5f, 0.5f, 0.5f,  
-		-0.5f, 0.5f, -0.5f, 
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, 0.5f, 
-		-0.5f, 0.5f, 0.5f,  
-
-		0.5f, 0.5f, 0.5f,   
-		0.5f, 0.5f, -0.5f,  
-		0.5f, -0.5f, -0.5f, 
-		0.5f, -0.5f, -0.5f, 
-		0.5f, -0.5f, 0.5f,  
-		0.5f, 0.5f, 0.5f,   
-
-		-0.5f, -0.5f, -0.5f,
-		0.5f, -0.5f, -0.5f, 
-		0.5f, -0.5f, 0.5f,  
-		0.5f, -0.5f, 0.5f,  
-		-0.5f, -0.5f, 0.5f, 
-		-0.5f, -0.5f, -0.5f,
-
-		-0.5f, 0.5f, -0.5f, 
-		0.5f, 0.5f, -0.5f,  
-		0.5f, 0.5f, 0.5f,   
-		0.5f, 0.5f, 0.5f,   
-		-0.5f, 0.5f, 0.5f,  
-		-0.5f, 0.5f, -0.5f
+		-0.5f, 0.5f, -0.5f,
+		0.5f, 0.5f, 0.5f,
+		0.5f, 0.5f, -0.5f,
+		0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, -0.5f,
+		-0.5f, 0.5f, 0.5f
 	};
 
 	
@@ -173,12 +165,30 @@ int main(int argc, char* argv[])
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-// 	glEnableVertexAttribArray(1);
-// 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glBindVertexArray(0);
-	
+		
 	#pragma endregion
 
+	//uniform block 	
+	glUniformBlockBinding(shaderRed.Program, glGetUniformBlockIndex(shaderRed.Program, "Matrices"), 0);
+	glUniformBlockBinding(shaderGreen.Program, glGetUniformBlockIndex(shaderGreen.Program, "Matrices"), 0);
+	glUniformBlockBinding(shaderBlue.Program, glGetUniformBlockIndex(shaderBlue.Program, "Matrices"), 0);
+	glUniformBlockBinding(shaderYellow.Program, glGetUniformBlockIndex(shaderYellow.Program, "Matrices"), 0);
+
+	//create uniform object
+	GLuint uboMatrices;
+	glGenBuffers(1, &uboMatrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
+
+	//projection matrix only create once
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
+	glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -195,25 +205,45 @@ int main(int argc, char* argv[])
 		lastFrame = currentFrame;
 
 
-		shader.Use();
-		glm::mat4 model;
-		glm::mat4 view = camera.GetViewMatrix();		
-		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 100.0f);
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniform3f(glGetUniformLocation(shader.Program, "cameraPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+		//view
+		glm::mat4 view = camera.GetViewMatrix();
+		glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 
-		// Cubes
+		//draw 4 cubes
+		//red cube		
 		glBindVertexArray(cubeVAO);
-		//glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-		glDrawArrays(GL_POINTS, 0, 36);
-		glBindVertexArray(0);
+		shaderRed.Use();
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(-0.75f, 0.75f, 0.0f));				
+		glUniformMatrix4fv(glGetUniformLocation(shaderRed.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		//green
+		shaderGreen.Use();
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(0.75f, 0.75f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shaderGreen.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		//blue 
+		shaderBlue.Use();
+		model = glm::mat4();
+		model = glm::translate(model, glm::vec3(-0.75f, -0.75f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shaderBlue.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		//yellow
+		shaderYellow.Use();
+		model = glm::mat4();
+		model = glm::translate(model, glm:: vec3(0.75f, -0.75f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shaderYellow.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		
-
+		glBindVertexArray(0);
+		
 		//交换缓冲
 		glfwSwapBuffers(window);
 	}

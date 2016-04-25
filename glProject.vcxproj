@@ -46,12 +46,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\vendor\glew\include;.\vendor\glfw\include;.\vendor\soil\Simple OpenGL Image Library\src;.\vendor\glm-master\glm-master;.\vendor\assimp-3.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\vendor\glew-1.5.4\include;.\vendor\glfw\include;.\vendor\soil\Simple OpenGL Image Library\src;.\vendor\glm-master\glm-master;.\vendor\assimp-3.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\vendor\glew\lib;.\vendor\glfw\lib;.\vendor\soil\Simple OpenGL Image Library\lib;.\vendor\assimp-3.1.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\vendor\glew-1.5.4\lib;.\vendor\glfw\lib;.\vendor\soil\Simple OpenGL Image Library\lib;.\vendor\assimp-3.1.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;SOIL.lib;assimpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBC.lib</IgnoreSpecificDefaultLibraries>
       <SubSystem>Console</SubSystem>
@@ -90,6 +90,11 @@
     <None Include="Debug\ShaderSingleColor.frag" />
     <None Include="Debug\skybox.frag" />
     <None Include="Debug\skybox.vs" />
+    <None Include="Debug\ubo.vs" />
+    <None Include="Debug\ubo_bule.frag" />
+    <None Include="Debug\ubo_green.frag" />
+    <None Include="Debug\ubo_red.frag" />
+    <None Include="Debug\ubo_yellow.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
