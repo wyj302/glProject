@@ -88,5 +88,11 @@
     <None Include="Debug\geometryShader.gs">
       <Filter>shaders</Filter>
     </None>
+    <None Include="Debug\normal.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\normal.vs">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -23,74 +23,92 @@ public:
 		{
 			std::ifstream vShaderFile(vertexSourcePath);
 			std::ifstream fShaderFile(fragmentSourcePath);
-			std::ifstream gShaderFile(geometrySourcePath);
 
-			std::stringstream vShaderStream, fShaderStream, gShaderStream;
+			std::stringstream vShaderStream, fShaderStream;
 
 			//读取文件到流
 			vShaderStream << vShaderFile.rdbuf();
 			fShaderStream << fShaderFile.rdbuf();
-			gShaderStream << gShaderFile.rdbuf();
 
 			vShaderFile.close();
 			fShaderFile.close();
-			gShaderFile.close();
 
 			//流转换GLchar数组
 			vertexCode = vShaderStream.str();
 			fragmentCode = fShaderStream.str();
-			geometryCode = gShaderStream.str();
-
 		}
 		catch (std::ifstream::failure e)
 		{
 			std::cout << "error read shader file" << std::endl;
 		}
-		
+
+		if (geometrySourcePath != nullptr)
+		{
+			std::ifstream gShaderFile(geometrySourcePath);
+			std::stringstream  gShaderStream;
+			gShaderStream << gShaderFile.rdbuf();
+			gShaderFile.close();
+			geometryCode = gShaderStream.str();
+		}
 
 		const GLchar* vShaderCode = vertexCode.c_str();
 		const GLchar* fShaderCode = fragmentCode.c_str();
-		const GLchar* gShaderCode = geometryCode.c_str();
-		
-		GLuint vertex, fragment, geometry;		
+		const GLchar* gShaderCode;
+		if (geometrySourcePath != nullptr)
+		{
+			gShaderCode = geometryCode.c_str();
+		}
+
+		GLuint vertex, fragment, geometry;
 
 		//vertex shader 
 		vertex = glCreateShader(GL_VERTEX_SHADER);
 		/**
-			\brief 着色器对象
-			\brief 指定了源码中有多少个字符串
-			\brief 顶点着色器源码
-			\brief NULL
+		\brief 着色器对象
+		\brief 指定了源码中有多少个字符串
+		\brief 顶点着色器源码
+		\brief NULL
 		*/
-		glShaderSource(vertex,1, &vShaderCode, NULL);
+		glShaderSource(vertex, 1, &vShaderCode, NULL);
 		glCompileShader(vertex);
 		checkCompileErrors(vertex, "VERTEX");
 
 		//fragment shader
 		fragment = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragment, 1, &fShaderCode, NULL);
-		glCompileShader(fragment);		
+		glCompileShader(fragment);
 		checkCompileErrors(vertex, "FRAGMENT");
 
-		//geometry shader
-		geometry = glCreateShader(GL_GEOMETRY_SHADER);
-		glShaderSource(geometry, 1, &gShaderCode, NULL);		
-		glCompileShader(geometry);
-		checkCompileErrors(vertex, "GEOMETRY");
+		if (geometrySourcePath != nullptr)
+		{
+			//geometry shader
+			geometry = glCreateShader(GL_GEOMETRY_SHADER);
+			glShaderSource(geometry, 1, &gShaderCode, NULL);
+			glCompileShader(geometry);
+			checkCompileErrors(vertex, "GEOMETRY");
+		}
 
 		//着色器程序
 		this->Program = glCreateProgram();
 		glAttachShader(this->Program, vertex);
-		glAttachShader(this->Program, geometry);
-		glAttachShader(this->Program, fragment);		
+
+		if (geometrySourcePath != nullptr)
+		{
+			glAttachShader(this->Program, geometry);
+		}
+		glAttachShader(this->Program, fragment);
 		glLinkProgram(this->Program);
 
 		checkCompileErrors(this->Program, "PROGRAM");
 
 		//删除着色器
 		glDeleteShader(vertex);
-		glDeleteShader(geometry);
 		glDeleteShader(fragment);
+
+		if (geometrySourcePath != nullptr)
+		{
+			glDeleteShader(geometry);
+		}
 
 	}
 	void Use()

@@ -103,13 +103,16 @@ int main(int argc, char* argv[])
 	//line
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		
-	Shader shader("geometryShader.vs", "geometryShader.frag", "geometryShader.gs");
+	Shader shader("geometryShader.vs", "geometryShader.frag");
+	Shader normalShader("normal.vs", "nromal.frag", "geometryShader.gs");
 	Model nanosuit("nanosuit/nanosuit.obj");
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / (GLfloat)screenHeight, 1.0f, 100.0f);
 	shader.Use();
 	glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	
+	normalShader.Use();
+	glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -126,10 +129,17 @@ int main(int argc, char* argv[])
 		lastFrame = currentFrame;
 
 		//
+		shader.Use();
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
 		glm::mat4 model;
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		glUniform1f(glGetUniformLocation(shader.Program, "time"), glfwGetTime());
+		nanosuit.Draw(shader);
+
+		//draw normal
+		normalShader.Use();
+		glUniformMatrix4fv(glGetUniformLocation(normalShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
+		model = glm::mat4();
+		glUniformMatrix4fv(glGetUniformLocation(normalShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		
 
 		//draw model
