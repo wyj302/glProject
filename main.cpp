@@ -97,39 +97,19 @@ int main(int argc, char* argv[])
 	glEnable(GL_DEPTH_TEST);	
 
 
-	//	
-	Shader geometryShader("geometryShader.vs", "geometryShader.frag", "geometryShader.gs");		
 	
 	#pragma region "object_initialization"
 
 	//line
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	GLfloat points[] = {
-		-0.5f, 0.5f, 1.0f, 0.0f, 0.0f, // Top-left
-		0.5f, 0.5f, 0.0f, 1.0f, 0.0f, // Top-right
-		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
-		-0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // Bottom-left
-	};
-
-	
-	//line
-	GLuint VAO, VBO;
-	glGenBuffers(1, &VBO);
-	glGenVertexArrays(1, &VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBindVertexArray(VAO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
-
-	glBindVertexArray(0);
 		
-	#pragma endregion
+	Shader shader("geometryShader.vs", "geometryShader.frag", "geometryShader.gs");
+	Model nanosuit("nanosuit/nanosuit.obj");
+
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / (GLfloat)screenHeight, 1.0f, 100.0f);
+	shader.Use();
+	glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -145,10 +125,15 @@ int main(int argc, char* argv[])
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		geometryShader.Use();
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_POINTS, 0, 4);
-		glBindVertexArray(0);
+		//
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
+		glm::mat4 model;
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glUniform1f(glGetUniformLocation(shader.Program, "time"), glfwGetTime());
+		
+
+		//draw model
+		nanosuit.Draw(shader);
 		
 		//交换缓冲
 		glfwSwapBuffers(window);
