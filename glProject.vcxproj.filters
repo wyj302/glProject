@@ -67,9 +67,6 @@
     <None Include="Debug\ubo.vs">
       <Filter>shaders</Filter>
     </None>
-    <None Include="Debug\ubo_bule.frag">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="Debug\ubo_green.frag">
       <Filter>shaders</Filter>
     </None>
@@ -77,6 +74,18 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="Debug\ubo_yellow.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\ubo_blue.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\geometryShader.vs">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\geometryShader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\geometryShader.gs">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

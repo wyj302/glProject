@@ -83,6 +83,9 @@
   <ItemGroup>
     <None Include="Debug\depth.frag" />
     <None Include="Debug\depth.vs" />
+    <None Include="Debug\geometryShader.frag" />
+    <None Include="Debug\geometryShader.gs" />
+    <None Include="Debug\geometryShader.vs" />
     <None Include="Debug\lamp.frag" />
     <None Include="Debug\lamp.vs" />
     <None Include="Debug\model.frag" />
@@ -91,7 +94,7 @@
     <None Include="Debug\skybox.frag" />
     <None Include="Debug\skybox.vs" />
     <None Include="Debug\ubo.vs" />
-    <None Include="Debug\ubo_bule.frag" />
+    <None Include="Debug\ubo_blue.frag" />
     <None Include="Debug\ubo_green.frag" />
     <None Include="Debug\ubo_red.frag" />
     <None Include="Debug\ubo_yellow.frag" />

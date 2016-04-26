@@ -13,28 +13,34 @@ class Shader
 public:
 	//id
 	GLuint Program;
-	Shader(const GLchar* vertexSourcePath, const GLchar* fragmentSourcePath)
+	Shader(const GLchar* vertexSourcePath, const GLchar* fragmentSourcePath, const GLchar* geometrySourcePath = nullptr)
 	{
 		std::string vertexCode;
 		std::string fragmentCode;
+		std::string geometryCode;
 
 		try
 		{
 			std::ifstream vShaderFile(vertexSourcePath);
 			std::ifstream fShaderFile(fragmentSourcePath);
+			std::ifstream gShaderFile(geometrySourcePath);
 
-			std::stringstream vShaderStream, fShaderStream;
+			std::stringstream vShaderStream, fShaderStream, gShaderStream;
 
 			//读取文件到流
 			vShaderStream << vShaderFile.rdbuf();
 			fShaderStream << fShaderFile.rdbuf();
+			gShaderStream << gShaderFile.rdbuf();
 
 			vShaderFile.close();
 			fShaderFile.close();
+			gShaderFile.close();
 
 			//流转换GLchar数组
 			vertexCode = vShaderStream.str();
 			fragmentCode = fShaderStream.str();
+			geometryCode = gShaderStream.str();
+
 		}
 		catch (std::ifstream::failure e)
 		{
@@ -44,10 +50,9 @@ public:
 
 		const GLchar* vShaderCode = vertexCode.c_str();
 		const GLchar* fShaderCode = fragmentCode.c_str();
-		//
-		GLuint vertex, fragment;
-		GLint success;
-		GLchar infoLog[512];
+		const GLchar* gShaderCode = geometryCode.c_str();
+		
+		GLuint vertex, fragment, geometry;		
 
 		//vertex shader 
 		vertex = glCreateShader(GL_VERTEX_SHADER);
@@ -59,41 +64,32 @@ public:
 		*/
 		glShaderSource(vertex,1, &vShaderCode, NULL);
 		glCompileShader(vertex);
-
-		glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-		if (!success)
-		{
-			glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-			std::cout << infoLog << std::endl;
-		}
+		checkCompileErrors(vertex, "VERTEX");
 
 		//fragment shader
 		fragment = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragment, 1, &fShaderCode, NULL);
-		glCompileShader(fragment);
-		
-		glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-		if (!success)
-		{
-			glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-			std::cout << infoLog << std::endl;
-		}
+		glCompileShader(fragment);		
+		checkCompileErrors(vertex, "FRAGMENT");
+
+		//geometry shader
+		geometry = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(geometry, 1, &gShaderCode, NULL);		
+		glCompileShader(geometry);
+		checkCompileErrors(vertex, "GEOMETRY");
 
 		//着色器程序
 		this->Program = glCreateProgram();
 		glAttachShader(this->Program, vertex);
-		glAttachShader(this->Program, fragment);
+		glAttachShader(this->Program, geometry);
+		glAttachShader(this->Program, fragment);		
 		glLinkProgram(this->Program);
 
-		glGetProgramiv(this->Program, GL_LINK_STATUS, &success);
-		if (!success)
-		{
-			glGetProgramInfoLog(this->Program, 512, NULL, infoLog);
-			std::cout << infoLog << std::endl;
-		}
+		checkCompileErrors(this->Program, "PROGRAM");
 
 		//删除着色器
 		glDeleteShader(vertex);
+		glDeleteShader(geometry);
 		glDeleteShader(fragment);
 
 	}
@@ -101,5 +97,31 @@ public:
 	{
 		glUseProgram(this->Program);
 	}
+private:
+	void checkCompileErrors(GLuint shader, std::string type)
+	{
+		GLint success;
+		GLchar infoLog[512];
+		if (type != "PROGRAM")
+		{
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+			if (!success)
+			{
+				glGetShaderInfoLog(shader, 512, NULL, infoLog);
+				std::cout << infoLog << std::endl;
+			}
+		}
+		else
+		{
+			glGetProgramiv(shader, GL_LINK_STATUS, &success);
+			if (!success)
+			{
+				glGetProgramInfoLog(shader, 512, NULL, infoLog);
+				std::cout << infoLog << std::endl;
+			}
+		}
+	}
+
 };
 #endif//_SHADER_H_
