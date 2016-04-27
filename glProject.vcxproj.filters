@@ -94,5 +94,11 @@
     <None Include="Debug\normal.vs">
       <Filter>shaders</Filter>
     </None>
+    <None Include="Debug\instance.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\instance.vs">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -91,30 +91,53 @@ int main(int argc, char* argv[])
 	}
 
 	//
+	GLfloat quadVertices[] = {
+		// Positions     // Colors
+		-0.05f, 0.05f, 1.0f, 0.0f, 0.0f,
+		0.05f, -0.05f, 0.0f, 1.0f, 0.0f,
+		-0.05f, -0.05f, 0.0f, 0.0f, 1.0f,
+
+		-0.05f, 0.05f, 1.0f, 0.0f, 0.0f,
+		0.05f, -0.05f, 0.0f, 1.0f, 0.0f,
+		0.05f, 0.05f, 0.0f, 1.0f, 1.0f
+	};
+
+	glm::vec2 translations[100];
+	int index = 0;
+	GLfloat offset = 0.1f;
+	for (GLint y = -10; y < 10; y+=2)
+	{
+		for (GLint x = -10; x < 10; x+=2)
+		{
+			glm::vec2 translation;
+			translation.x = (GLfloat)x / 10.0f + offset;
+			translation.y = (GLfloat)y / 10.0f + offset;
+			translations[index++] = translation;
+		}
+	}
+	//
 	glViewport(0, 0, screenWidth, screenHeight);
 
 	//深度测试
 	glEnable(GL_DEPTH_TEST);	
 
 
-	
-	#pragma region "object_initialization"
-
 	//line
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		
-	Shader shader("geometryShader.vs", "geometryShader.frag");
-	Shader normalShader("normal.vs", "normal.frag", "geometryShader.gs");
+	Shader shader("instance.vs", "instance.frag");
 
-	//Model nanosuit("nanosuit/nanosuit.obj");
-	Model nanosuit("F3804/F3804.obj");
+	GLuint quadVAO, quadVBO;
+	glGenBuffers(1, &quadVBO);
+	glGenVertexArrays(1, &quadVAO);
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
 
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / (GLfloat)screenHeight, 1.0f, 100.0f);
-	shader.Use();
-	glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-	
-	normalShader.Use();
-	glUniformMatrix4fv(glGetUniformLocation(normalShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -132,18 +155,20 @@ int main(int argc, char* argv[])
 
 		//draw model
 		shader.Use();
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
-		glm::mat4 model;
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		nanosuit.Draw(shader);
+		for (GLuint i = 0; i < 100;i++)
+		{
+			stringstream ss;
+			string index;
+			ss << i;
+			index = ss.str();
+			GLint loaction = glGetUniformLocation(shader.Program, ("offsets[" + index + "]").c_str());
+			glUniform2f(loaction, translations[i].x, translations[i].y);
+		}
 
-		//draw normal
-		normalShader.Use();
-		glUniformMatrix4fv(glGetUniformLocation(normalShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
-		model = glm::mat4();
-		glUniformMatrix4fv(glGetUniformLocation(normalShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));				
-		nanosuit.Draw(normalShader);
-		
+		glBindVertexArray(quadVAO);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
+		glBindVertexArray(0);
+
 		//交换缓冲
 		glfwSwapBuffers(window);
 	}

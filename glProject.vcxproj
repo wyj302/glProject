@@ -86,6 +86,8 @@
     <None Include="Debug\geometryShader.frag" />
     <None Include="Debug\geometryShader.gs" />
     <None Include="Debug\geometryShader.vs" />
+    <None Include="Debug\instance.frag" />
+    <None Include="Debug\instance.vs" />
     <None Include="Debug\lamp.frag" />
     <None Include="Debug\lamp.vs" />
     <None Include="Debug\model.frag" />
