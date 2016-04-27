@@ -52,7 +52,7 @@ GLfloat yaw = 90.0f;
 GLfloat aspect = 45.0f;
 
 //camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 8.0f, 3.0f));
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
@@ -104,15 +104,17 @@ int main(int argc, char* argv[])
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		
 	Shader shader("geometryShader.vs", "geometryShader.frag");
-	Shader normalShader("normal.vs", "nromal.frag", "geometryShader.gs");
-	Model nanosuit("nanosuit/nanosuit.obj");
+	Shader normalShader("normal.vs", "normal.frag", "geometryShader.gs");
+
+	//Model nanosuit("nanosuit/nanosuit.obj");
+	Model nanosuit("F3804/F3804.obj");
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / (GLfloat)screenHeight, 1.0f, 100.0f);
 	shader.Use();
 	glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	
 	normalShader.Use();
-	glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(glGetUniformLocation(normalShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -128,7 +130,7 @@ int main(int argc, char* argv[])
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		//
+		//draw model
 		shader.Use();
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
 		glm::mat4 model;
@@ -139,11 +141,8 @@ int main(int argc, char* argv[])
 		normalShader.Use();
 		glUniformMatrix4fv(glGetUniformLocation(normalShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
 		model = glm::mat4();
-		glUniformMatrix4fv(glGetUniformLocation(normalShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		
-
-		//draw model
-		nanosuit.Draw(shader);
+		glUniformMatrix4fv(glGetUniformLocation(normalShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));				
+		nanosuit.Draw(normalShader);
 		
 		//交换缓冲
 		glfwSwapBuffers(window);
