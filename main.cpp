@@ -127,6 +127,12 @@ int main(int argc, char* argv[])
 		
 	Shader shader("instance.vs", "instance.frag");
 
+	GLuint instanceVBO;
+	glGenBuffers(1, &instanceVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	GLuint quadVAO, quadVBO;
 	glGenBuffers(1, &quadVBO);
 	glGenVertexArrays(1, &quadVAO);
@@ -138,6 +144,16 @@ int main(int argc, char* argv[])
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+	
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttribDivisor(2, 1);
+	glBindVertexArray(0);
+
+
+	
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -155,16 +171,6 @@ int main(int argc, char* argv[])
 
 		//draw model
 		shader.Use();
-		for (GLuint i = 0; i < 100;i++)
-		{
-			stringstream ss;
-			string index;
-			ss << i;
-			index = ss.str();
-			GLint loaction = glGetUniformLocation(shader.Program, ("offsets[" + index + "]").c_str());
-			glUniform2f(loaction, translations[i].x, translations[i].y);
-		}
-
 		glBindVertexArray(quadVAO);
 		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
 		glBindVertexArray(0);

@@ -46,12 +46,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\vendor\glew-1.5.4\include;.\vendor\glfw\include;.\vendor\soil\Simple OpenGL Image Library\src;.\vendor\glm-master\glm-master;.\vendor\assimp-3.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\vendor\glew-1.13.0\include;.\vendor\glfw\include;.\vendor\soil\Simple OpenGL Image Library\src;.\vendor\glm-master\glm-master;.\vendor\assimp-3.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\vendor\glew-1.5.4\lib;.\vendor\glfw\lib;.\vendor\soil\Simple OpenGL Image Library\lib;.\vendor\assimp-3.1.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\vendor\glew-1.13.0\lib\Release\Win32;.\vendor\glfw\lib;.\vendor\soil\Simple OpenGL Image Library\lib;.\vendor\assimp-3.1.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;SOIL.lib;assimpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBC.lib</IgnoreSpecificDefaultLibraries>
       <SubSystem>Console</SubSystem>
