@@ -100,5 +100,11 @@
     <None Include="Debug\instance.vs">
       <Filter>shaders</Filter>
     </None>
+    <None Include="Debug\planet.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\planet.vs">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

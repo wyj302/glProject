@@ -20,6 +20,9 @@ public:
 	void Draw(Shader shader);
 
 	GLuint TextureFromFile(const char* str, string dir);
+
+	std::vector<Mesh> meshes;
+	std::vector<Texture> textures_loaded;
 private:
 	void loadModel(std::string path)
 	{
@@ -35,9 +38,9 @@ private:
 	}
 
 	//model data
-	std::vector<Mesh> meshes;
+	
 	std::string directory;
-	std::vector<Texture> texutures_loaded;
+	
 
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
@@ -140,11 +143,11 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 		mat->GetTexture(type, i, &str);
 
 		GLboolean skip = false;
-		for (size_t j = 0; j < texutures_loaded.size(); j++)
+		for (size_t j = 0; j < textures_loaded.size(); j++)
 		{
-			if (texutures_loaded[j].path == str)
+			if (textures_loaded[j].path == str)
 			{
-				textures.push_back(texutures_loaded[j]);
+				textures.push_back(textures_loaded[j]);
 				skip = true;
 				break;
 			}
@@ -159,7 +162,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 			texture.path = str;			
 
 			textures.push_back(texture);
-			texutures_loaded.push_back(texture);					
+			textures_loaded.push_back(texture);					
 		}
 		
 	}

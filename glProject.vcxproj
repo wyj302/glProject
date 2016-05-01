@@ -94,6 +94,8 @@
     <None Include="Debug\model.vs" />
     <None Include="Debug\normal.frag" />
     <None Include="Debug\normal.vs" />
+    <None Include="Debug\planet.frag" />
+    <None Include="Debug\planet.vs" />
     <None Include="Debug\ShaderSingleColor.frag" />
     <None Include="Debug\skybox.frag" />
     <None Include="Debug\skybox.vs" />

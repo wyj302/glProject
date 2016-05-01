@@ -34,6 +34,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void do_movement();
 GLuint loadTexture(GLchar* path);
 GLuint loadCubemap(std::vector<const GLchar*> faces);
+void calcFPS(GLFWwindow* window, GLfloat lastframe);
 //------------------------------------------------------------
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
@@ -52,7 +53,7 @@ GLfloat yaw = 90.0f;
 GLfloat aspect = 45.0f;
 
 //camera
-Camera camera(glm::vec3(0.0f, 8.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 80.0f));
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
@@ -91,30 +92,7 @@ int main(int argc, char* argv[])
 	}
 
 	//
-	GLfloat quadVertices[] = {
-		// Positions     // Colors
-		-0.05f, 0.05f, 1.0f, 0.0f, 0.0f,
-		0.05f, -0.05f, 0.0f, 1.0f, 0.0f,
-		-0.05f, -0.05f, 0.0f, 0.0f, 1.0f,
-
-		-0.05f, 0.05f, 1.0f, 0.0f, 0.0f,
-		0.05f, -0.05f, 0.0f, 1.0f, 0.0f,
-		0.05f, 0.05f, 0.0f, 1.0f, 1.0f
-	};
-
-	glm::vec2 translations[100];
-	int index = 0;
-	GLfloat offset = 0.1f;
-	for (GLint y = -10; y < 10; y+=2)
-	{
-		for (GLint x = -10; x < 10; x+=2)
-		{
-			glm::vec2 translation;
-			translation.x = (GLfloat)x / 10.0f + offset;
-			translation.y = (GLfloat)y / 10.0f + offset;
-			translations[index++] = translation;
-		}
-	}
+	
 	//
 	glViewport(0, 0, screenWidth, screenHeight);
 
@@ -125,35 +103,80 @@ int main(int argc, char* argv[])
 	//line
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		
-	Shader shader("instance.vs", "instance.frag");
-
-	GLuint instanceVBO;
-	glGenBuffers(1, &instanceVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	GLuint quadVAO, quadVBO;
-	glGenBuffers(1, &quadVBO);
-	glGenVertexArrays(1, &quadVAO);
-	glBindVertexArray(quadVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
-	
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glVertexAttribDivisor(2, 1);
-	glBindVertexArray(0);
+	Shader instanceShader("instance.vs", "instance.frag");
+	Shader planetShader("planet.vs", "planet.frag");
 
 
-	
+	//laod models 
+	Model rock("rock/rock.obj");
+	Model planet("planet/planet.obj");
+
+	//projection
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / (GLfloat)screenHeight, 1.0f, 10000.0f);
+	planetShader.Use();
+	glUniformMatrix4fv(glGetUniformLocation(planetShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+
+	//
+	instanceShader.Use();
+	glUniformMatrix4fv(glGetUniformLocation(instanceShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	// Generate a large list of semi-random model transformation matrices
+	GLuint amount = 100000;
+	glm::mat4* modelMatrices;
+	modelMatrices = new glm::mat4[amount];
+	srand(glfwGetTime()); // initialize random seed	
+	GLfloat radius = 150.0f;
+	GLfloat offset = 25.0f;
+	for (GLuint i = 0; i < amount; i++)
+	{
+		glm::mat4 model;
+		// 1. Translation: Randomly displace along circle with radius 'radius' in range [-offset, offset]
+		GLfloat angle = (GLfloat)i / (GLfloat)amount * 360.0f;
+		GLfloat displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
+		GLfloat x = sin(angle) * radius + displacement;
+		displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
+		GLfloat y = -2.5f + displacement * 0.4f; // Keep height of asteroid field smaller compared to width of x and z
+		displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
+		GLfloat z = cos(angle) * radius + displacement;
+		model = glm::translate(model, glm::vec3(x, y, z));
+
+		// 2. Scale: Scale between 0.05 and 0.25f
+		GLfloat scale = (rand() % 20) / 100.0f + 0.05;
+		model = glm::scale(model, glm::vec3(scale));
+
+		// 3. Rotation: add random rotation around a (semi)randomly picked rotation axis vector
+		GLfloat rotAngle = (rand() % 360);
+		model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+
+		// 4. Now add to list of matrices
+		modelMatrices[i] = model;
+	}
+
+	for (GLuint i = 0; i < rock.meshes.size(); i++)
+	{
+		GLuint VAO = rock.meshes[i].VAO;
+		GLuint buffer;
+		glBindVertexArray(VAO);
+		glGenBuffers(1, &buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+		// Set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -168,12 +191,37 @@ int main(int argc, char* argv[])
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+		calcFPS(window, lastFrame);
+
 
 		//draw model
-		shader.Use();
-		glBindVertexArray(quadVAO);
-		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
-		glBindVertexArray(0);
+		planetShader.Use();
+		glUniformMatrix4fv(glGetUniformLocation(planetShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
+		instanceShader.Use();
+		glUniformMatrix4fv(glGetUniformLocation(instanceShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
+
+		planetShader.Use();
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(0.0f, -5.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
+		glUniformMatrix4fv(glGetUniformLocation(planetShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		planet.Draw(planetShader);
+
+		instanceShader.Use();
+		// NB: This could all be implemented as a method within the Model class, perhaps "DrawInstanced(const GLuint amount)"
+		glActiveTexture(GL_TEXTURE0); // Activate proper texture unit before binding
+		glUniform1i(glGetUniformLocation(instanceShader.Program, "texture_diffuse1"), 0); // Now set the sampler to the correct texture unit
+		glBindTexture(GL_TEXTURE_2D, rock.textures_loaded[0].id); // Note we also made the textures_loaded vector public (instead of private) from the model class.
+		for (GLuint i = 0; i < rock.meshes.size(); i++)
+		{
+			glBindVertexArray(rock.meshes[i].VAO);
+			glDrawElementsInstanced(GL_TRIANGLES, rock.meshes[i].vertices.size(), GL_UNSIGNED_INT, 0, amount);
+			glBindVertexArray(0);
+		}
+		// reset our texture binding
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
 
 		//交换缓冲
 		glfwSwapBuffers(window);
@@ -289,4 +337,32 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.ProcessMouseScroll(yoffset);
+}
+
+void calcFPS(GLFWwindow* window, GLfloat lastframe)
+{
+// 	GLfloat frame = 1000.0f / lastframe;
+// 	stringstream ss;
+// 	string title;
+// 	ss << frame;
+// 
+// 	title = ss.str();
+// 	glfwSetWindowTitle(window, title.c_str());
+
+	static string temp = "";
+	static GLfloat framesPerSecond = 0.0f;
+	static GLfloat frames = 0.0f;
+	static GLfloat lastTime = 0.0f;
+	GLfloat currentTime = glfwGetTime();
+	++frames;
+	if (currentTime - lastTime > 1.0f)
+	{
+		framesPerSecond = frames;
+		stringstream ss;
+		ss << framesPerSecond;
+		temp = "fps: " + ss.str();
+		lastTime = currentTime;
+		frames = 0;
+	}
+	glfwSetWindowTitle(window, temp.c_str());
 }
