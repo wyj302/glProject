@@ -81,6 +81,8 @@
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Debug\antialiasing.frag" />
+    <None Include="Debug\antialiasing.vs" />
     <None Include="Debug\depth.frag" />
     <None Include="Debug\depth.vs" />
     <None Include="Debug\geometryShader.frag" />

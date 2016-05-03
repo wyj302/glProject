@@ -53,7 +53,7 @@ GLfloat yaw = 90.0f;
 GLfloat aspect = 45.0f;
 
 //camera
-Camera camera(glm::vec3(0.0f, 0.0f, 80.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
@@ -91,93 +91,75 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	//
-	
-	//
 	glViewport(0, 0, screenWidth, screenHeight);
+
+	//多采样
+	glEnable(GL_MULTISAMPLE);
 
 	//深度测试
 	glEnable(GL_DEPTH_TEST);	
 
-
 	//line
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		
-	Shader instanceShader("instance.vs", "instance.frag");
-	Shader planetShader("planet.vs", "planet.frag");
+	Shader shader("antialiasing.vs", "antialiasing.frag");
 
+	GLfloat cubeVertices[] = {
+		// Positions       
+		-0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, -0.5f,
+		0.5f, 0.5f, -0.5f,
+		-0.5f, 0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
 
-	//laod models 
-	Model rock("rock/rock.obj");
-	Model planet("planet/planet.obj");
+		-0.5f, -0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f,
+		0.5f, 0.5f, 0.5f,
+		0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
 
-	//projection
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / (GLfloat)screenHeight, 1.0f, 10000.0f);
-	planetShader.Use();
-	glUniformMatrix4fv(glGetUniformLocation(planetShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		-0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, 0.5f,
+		-0.5f, 0.5f, 0.5f,
 
+		0.5f, 0.5f, 0.5f,
+		0.5f, 0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, 0.5f,
+		0.5f, 0.5f, 0.5f,
+
+		-0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
+		-0.5f, -0.5f, -0.5f,
+
+		-0.5f, 0.5f, -0.5f,
+		0.5f, 0.5f, -0.5f,
+		0.5f, 0.5f, 0.5f,
+		0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, -0.5f
+	};
 
 	//
-	instanceShader.Use();
-	glUniformMatrix4fv(glGetUniformLocation(instanceShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-	// Generate a large list of semi-random model transformation matrices
-	GLuint amount = 100000;
-	glm::mat4* modelMatrices;
-	modelMatrices = new glm::mat4[amount];
-	srand(glfwGetTime()); // initialize random seed	
-	GLfloat radius = 150.0f;
-	GLfloat offset = 25.0f;
-	for (GLuint i = 0; i < amount; i++)
-	{
-		glm::mat4 model;
-		// 1. Translation: Randomly displace along circle with radius 'radius' in range [-offset, offset]
-		GLfloat angle = (GLfloat)i / (GLfloat)amount * 360.0f;
-		GLfloat displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
-		GLfloat x = sin(angle) * radius + displacement;
-		displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
-		GLfloat y = -2.5f + displacement * 0.4f; // Keep height of asteroid field smaller compared to width of x and z
-		displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
-		GLfloat z = cos(angle) * radius + displacement;
-		model = glm::translate(model, glm::vec3(x, y, z));
-
-		// 2. Scale: Scale between 0.05 and 0.25f
-		GLfloat scale = (rand() % 20) / 100.0f + 0.05;
-		model = glm::scale(model, glm::vec3(scale));
-
-		// 3. Rotation: add random rotation around a (semi)randomly picked rotation axis vector
-		GLfloat rotAngle = (rand() % 360);
-		model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
-
-		// 4. Now add to list of matrices
-		modelMatrices[i] = model;
-	}
-
-	for (GLuint i = 0; i < rock.meshes.size(); i++)
-	{
-		GLuint VAO = rock.meshes[i].VAO;
-		GLuint buffer;
-		glBindVertexArray(VAO);
-		glGenBuffers(1, &buffer);
-		glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
-		// Set attribute pointers for matrix (4 times vec4)
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)0);
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(sizeof(glm::vec4)));
-		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(2 * sizeof(glm::vec4)));
-		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid*)(3 * sizeof(glm::vec4)));
-
-		glVertexAttribDivisor(3, 1);
-		glVertexAttribDivisor(4, 1);
-		glVertexAttribDivisor(5, 1);
-		glVertexAttribDivisor(6, 1);
-
-		glBindVertexArray(0);
-	}
-
+	GLuint cubeVAO, cubeVBO;
+	glGenVertexArrays(1, &cubeVAO);
+	glGenBuffers(1, &cubeVBO);
+	glBindVertexArray(cubeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glBindVertexArray(0);
+	
 	while (!glfwWindowShouldClose(window))
 	{
 		//检查及调用事件
@@ -195,33 +177,15 @@ int main(int argc, char* argv[])
 
 
 		//draw model
-		planetShader.Use();
-		glUniformMatrix4fv(glGetUniformLocation(planetShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
-		instanceShader.Use();
-		glUniformMatrix4fv(glGetUniformLocation(instanceShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
-
-		planetShader.Use();
-		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(0.0f, -5.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
-		glUniformMatrix4fv(glGetUniformLocation(planetShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		planet.Draw(planetShader);
-
-		instanceShader.Use();
-		// NB: This could all be implemented as a method within the Model class, perhaps "DrawInstanced(const GLuint amount)"
-		glActiveTexture(GL_TEXTURE0); // Activate proper texture unit before binding
-		glUniform1i(glGetUniformLocation(instanceShader.Program, "texture_diffuse1"), 0); // Now set the sampler to the correct texture unit
-		glBindTexture(GL_TEXTURE_2D, rock.textures_loaded[0].id); // Note we also made the textures_loaded vector public (instead of private) from the model class.
-		for (GLuint i = 0; i < rock.meshes.size(); i++)
-		{
-			glBindVertexArray(rock.meshes[i].VAO);
-			glDrawElementsInstanced(GL_TRIANGLES, rock.meshes[i].vertices.size(), GL_UNSIGNED_INT, 0, amount);
-			glBindVertexArray(0);
-		}
-		// reset our texture binding
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
+		shader.Use();		
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4()));		
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));		
+		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenWidth, 0.1f, 100.0f);
+		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);		
+		glBindVertexArray(0);
 
 		//交换缓冲
 		glfwSwapBuffers(window);
