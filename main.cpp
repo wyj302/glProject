@@ -38,7 +38,7 @@ void calcFPS(GLFWwindow* window, GLfloat lastframe);
 GLuint generateMultiSampleTexture(GLuint samples);
 //------------------------------------------------------------
 
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 103.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 bool keys[1024];
@@ -55,8 +55,8 @@ GLfloat aspect = 45.0f;
 
 //camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+GLboolean blinn = false;
+glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 
 int main(int argc, char* argv[])
 {
@@ -103,9 +103,11 @@ int main(int argc, char* argv[])
 	//line
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		
-	Shader shader("antialiasing.vs", "antialiasing.frag");
+	Shader shader("model.vs", "model.frag");
+	Shader cubeShader("lamp.vs", "lamp.frag");
 	#pragma region "object_initialization"
 
+	//
 	GLfloat cubeVertices[] = {
 		// Positions       
 		-0.5f, -0.5f, -0.5f,
@@ -150,8 +152,7 @@ int main(int argc, char* argv[])
 		-0.5f, 0.5f, 0.5f,
 		-0.5f, 0.5f, -0.5f
 	};
-
-	//VAO
+	// Setup cube VAO
 	GLuint cubeVAO, cubeVBO;
 	glGenVertexArrays(1, &cubeVAO);
 	glGenBuffers(1, &cubeVBO);
@@ -161,38 +162,42 @@ int main(int argc, char* argv[])
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glBindVertexArray(0);
-	#pragma endregion
-
-	//FBO
-	GLuint framebuffer;
-	glGenFramebuffers(1, &framebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-	//创建多采样纹理
-	GLuint textureColorBufferMultiSampled = generateMultiSampleTexture(4);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, textureColorBufferMultiSampled, 0);
 
 	//
-	GLuint rbo;
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+	GLfloat planeVertices[] = {
+		// Positions          // Normals         // Texture Coords
+		8.0f,  -0.5f, 8.0f, 0.0f, 1.0f, 0.0f,	5.0f, 0.0f,
+		-8.0f, -0.5f, 8.0f, 0.0f, 1.0f, 0.0f,	0.0f, 0.0f,
+		-8.0f, -0.5f, -8.0f, 0.0f, 1.0f, 0.0f,	0.0f, 5.0f,
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+		8.0f,  -0.5f,  8.0f, 0.0f, 1.0f, 0.0f,	5.0f, 0.0f,
+		-8.0f, -0.5f, -8.0f, 0.0f, 1.0f, 0.0f,	0.0f, 5.0f,
+		8.0f,  -0.5f, -8.0f, 0.0f, 1.0f, 0.0f,	5.0f, 5.0f
+	};
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//VAO
+	GLuint planeVAO, planeVBO;
+	glGenVertexArrays(1, &planeVAO);
+	glGenBuffers(1, &planeVBO);
+	glBindVertexArray(planeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glBindVertexArray(0);
+	#pragma endregion
+
+	GLuint floorTexture = loadTexture("wood.png");
 
 	while (!glfwWindowShouldClose(window))
 	{
 		//检查及调用事件
 		glfwPollEvents();		
 		do_movement();
-
-		//frame buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 		//
 		glClearColor(0.2f, 0.2, 0.2f, 1.0f);
@@ -203,23 +208,38 @@ int main(int argc, char* argv[])
 		lastFrame = currentFrame;
 		calcFPS(window, lastFrame);
 
+		//
+		cubeShader.Use();
+		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 1000.0f);
+		glUniformMatrix4fv(glGetUniformLocation(cubeShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(glGetUniformLocation(cubeShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
+		glm::mat4 model;
+		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		glUniformMatrix4fv(glGetUniformLocation(cubeShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
 
 		//draw model
 		shader.Use();		
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4()));		
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));		
-		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenWidth, 0.1f, 1000.0f);
+		 projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenWidth, 0.1f, 100.0f);
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);		
+		//
+		glUniform3fv(glGetUniformLocation(shader.Program, "lightPos"), 1, &lightPos[0]);
+		glUniform3fv(glGetUniformLocation(shader.Program, "viewPos"), 1, &camera.Position[0]);
+		glUniform1i(glGetUniformLocation(shader.Program, "blinn"), blinn);
+
+		glBindVertexArray(planeVAO);
+		glBindTexture(GL_TEXTURE_2D, floorTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 6);		
 		glBindVertexArray(0);
 
-		//blit framebuffer to deafult framebuffer
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
+		//
+		//std::cout << (blinn ? "true" : "false") << std::endl;
 		//交换缓冲
 		glfwSwapBuffers(window);
 	}
@@ -297,6 +317,15 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 
+	if (key == GLFW_KEY_B)
+	{
+		if (action == GLFW_PRESS)
+		{
+			blinn = blinn ? false : true;
+		} 
+
+	}
+	
 	if (key >= 0 && key < 1024)
 	{
 		if (action == GLFW_PRESS)
