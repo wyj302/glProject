@@ -112,5 +112,11 @@
     <None Include="Debug\antialiasing.vs">
       <Filter>shaders</Filter>
     </None>
+    <None Include="Debug\gamma_correction.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Debug\gamma_correction.vs">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

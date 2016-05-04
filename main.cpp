@@ -32,7 +32,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void do_movement();
-GLuint loadTexture(GLchar* path);
+GLuint loadTexture(GLchar* path, GLboolean gamma);
 GLuint loadCubemap(std::vector<const GLchar*> faces);
 void calcFPS(GLFWwindow* window, GLfloat lastframe);
 GLuint generateMultiSampleTexture(GLuint samples);
@@ -55,7 +55,7 @@ GLfloat aspect = 45.0f;
 
 //camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-GLboolean blinn = false;
+GLboolean gammaEnabled = false;
 glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 
 int main(int argc, char* argv[])
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
 	//line
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		
-	Shader shader("model.vs", "model.frag");
+	Shader shader("gamma_correction.vs", "gamma_correction.frag");
 	Shader cubeShader("lamp.vs", "lamp.frag");
 	#pragma region "object_initialization"
 
@@ -191,7 +191,24 @@ int main(int argc, char* argv[])
 	glBindVertexArray(0);
 	#pragma endregion
 
-	GLuint floorTexture = loadTexture("wood.png");
+	// Light sources
+	glm::vec3 lightPositions[] = {
+		glm::vec3(-3.0f, 0.0f, 0.0f),
+		glm::vec3(-1.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(3.0f, 0.0f, 0.0f)
+	};
+
+	glm::vec3 lightColors[] = {
+		glm::vec3(0.25),
+		glm::vec3(0.50),
+		glm::vec3(0.75),
+		glm::vec3(1.00)
+	};
+
+
+	GLuint floorTexture = loadTexture("wood.png", false);
+	GLuint floorTextureGammaCorrected = loadTexture("wood.png", true);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -222,24 +239,22 @@ int main(int argc, char* argv[])
 		glBindVertexArray(0);
 
 		//draw model
-		shader.Use();		
-		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4()));		
+		shader.Use();					
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));		
 		 projection = glm::perspective(camera.Zoom, (GLfloat)screenWidth / (GLfloat)screenWidth, 0.1f, 100.0f);
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		
 		//
-		glUniform3fv(glGetUniformLocation(shader.Program, "lightPos"), 1, &lightPos[0]);
+		glUniform3fv(glGetUniformLocation(shader.Program, "lightPositions"), 4, &lightPositions[0][0]);
+		glUniform3fv(glGetUniformLocation(shader.Program, "lightColors"), 4, &lightColors[0][0]);
 		glUniform3fv(glGetUniformLocation(shader.Program, "viewPos"), 1, &camera.Position[0]);
-		glUniform1i(glGetUniformLocation(shader.Program, "blinn"), blinn);
+		glUniform1i(glGetUniformLocation(shader.Program, "gamma"), gammaEnabled);
 
 		glBindVertexArray(planeVAO);
-		glBindTexture(GL_TEXTURE_2D, floorTexture);
+		glBindTexture(GL_TEXTURE_2D, gammaEnabled ? floorTextureGammaCorrected : floorTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 6);		
 		glBindVertexArray(0);
-
-		//
-		//std::cout << (blinn ? "true" : "false") << std::endl;
+		
 		//交换缓冲
 		glfwSwapBuffers(window);
 	}
@@ -284,7 +299,7 @@ GLuint loadCubemap(std::vector<const GLchar*> faces)
 	
 }
 
-GLuint loadTexture(GLchar* path)
+GLuint loadTexture(GLchar* path, GLboolean gammaCorrection)
 {
 	GLuint textureID;
 	glGenTextures(1, &textureID);
@@ -292,7 +307,7 @@ GLuint loadTexture(GLchar* path)
 	unsigned char* image = SOIL_load_image(path, &width, &height, 0, SOIL_LOAD_RGB);
 
 	glBindTexture(GL_TEXTURE_2D, textureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	glTexImage2D(GL_TEXTURE_2D, 0, gammaCorrection ? GL_SRGB : GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 
@@ -321,7 +336,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		if (action == GLFW_PRESS)
 		{
-			blinn = blinn ? false : true;
+			gammaEnabled = gammaEnabled ? false : true;
 		} 
 
 	}

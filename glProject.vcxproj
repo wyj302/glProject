@@ -85,6 +85,8 @@
     <None Include="Debug\antialiasing.vs" />
     <None Include="Debug\depth.frag" />
     <None Include="Debug\depth.vs" />
+    <None Include="Debug\gamma_correction.frag" />
+    <None Include="Debug\gamma_correction.vs" />
     <None Include="Debug\geometryShader.frag" />
     <None Include="Debug\geometryShader.gs" />
     <None Include="Debug\geometryShader.vs" />
