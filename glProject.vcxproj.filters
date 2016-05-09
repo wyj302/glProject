@@ -16,6 +16,12 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{e80a0978-de8a-4291-8c57-a66aa7d0162c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\old">
+      <UniqueIdentifier>{14a60324-a0e8-4cfa-9665-b67047f2f890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders\shadow">
+      <UniqueIdentifier>{64f028d0-cb1a-4e16-a1ea-1a5719e3431e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -37,86 +43,104 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Debug\model.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\model.vs">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\lamp.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\lamp.vs">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\depth.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\depth.vs">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\ShaderSingleColor.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\skybox.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\skybox.vs">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\ubo.vs">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\ubo_green.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\ubo_red.frag">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="Debug\ubo_yellow.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\ubo_blue.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\geometryShader.vs">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\geometryShader.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\geometryShader.gs">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\normal.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\normal.vs">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\instance.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\instance.vs">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\planet.frag">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="Debug\planet.vs">
-      <Filter>shaders</Filter>
+      <Filter>shaders\old</Filter>
     </None>
     <None Include="Debug\antialiasing.frag">
-      <Filter>shaders</Filter>
+      <Filter>shaders\old</Filter>
     </None>
     <None Include="Debug\antialiasing.vs">
-      <Filter>shaders</Filter>
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\depth.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\depth.vs">
+      <Filter>shaders\old</Filter>
     </None>
     <None Include="Debug\gamma_correction.frag">
-      <Filter>shaders</Filter>
+      <Filter>shaders\old</Filter>
     </None>
     <None Include="Debug\gamma_correction.vs">
-      <Filter>shaders</Filter>
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\geometryShader.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\geometryShader.gs">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\geometryShader.vs">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\instance.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\instance.vs">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\lamp.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\lamp.vs">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\model.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\model.vs">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\normal.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\normal.vs">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\planet.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\planet.vs">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\ShaderSingleColor.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\skybox.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\skybox.vs">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\ubo.vs">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\ubo_blue.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\ubo_green.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\ubo_red.frag">
+      <Filter>shaders\old</Filter>
+    </None>
+    <None Include="Debug\debug_quad.frag">
+      <Filter>shaders\shadow</Filter>
+    </None>
+    <None Include="Debug\debug_quad.vs">
+      <Filter>shaders\shadow</Filter>
+    </None>
+    <None Include="Debug\shadow_mapping_depth.frag">
+      <Filter>shaders\shadow</Filter>
+    </None>
+    <None Include="Debug\shadow_mapping_depth.vs">
+      <Filter>shaders\shadow</Filter>
+    </None>
+    <None Include="Debug\shadow_mapping.frag">
+      <Filter>shaders\shadow</Filter>
+    </None>
+    <None Include="Debug\shadow_mapping.vs">
+      <Filter>shaders\shadow</Filter>
     </None>
   </ItemGroup>
 </Project>

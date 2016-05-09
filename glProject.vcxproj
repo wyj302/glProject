@@ -83,6 +83,8 @@
   <ItemGroup>
     <None Include="Debug\antialiasing.frag" />
     <None Include="Debug\antialiasing.vs" />
+    <None Include="Debug\debug_quad.frag" />
+    <None Include="Debug\debug_quad.vs" />
     <None Include="Debug\depth.frag" />
     <None Include="Debug\depth.vs" />
     <None Include="Debug\gamma_correction.frag" />
@@ -101,6 +103,10 @@
     <None Include="Debug\planet.frag" />
     <None Include="Debug\planet.vs" />
     <None Include="Debug\ShaderSingleColor.frag" />
+    <None Include="Debug\shadow_mapping.frag" />
+    <None Include="Debug\shadow_mapping.vs" />
+    <None Include="Debug\shadow_mapping_depth.frag" />
+    <None Include="Debug\shadow_mapping_depth.vs" />
     <None Include="Debug\skybox.frag" />
     <None Include="Debug\skybox.vs" />
     <None Include="Debug\ubo.vs" />
