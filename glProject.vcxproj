@@ -102,6 +102,11 @@
     <None Include="Debug\normal.vs" />
     <None Include="Debug\planet.frag" />
     <None Include="Debug\planet.vs" />
+    <None Include="Debug\point_shadow.frag" />
+    <None Include="Debug\point_shadow.vs" />
+    <None Include="Debug\point_shadow_depth.frag" />
+    <None Include="Debug\point_shadow_depth.gs" />
+    <None Include="Debug\point_shadow_depth.vs" />
     <None Include="Debug\ShaderSingleColor.frag" />
     <None Include="Debug\shadow_mapping.frag" />
     <None Include="Debug\shadow_mapping.vs" />

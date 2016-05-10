@@ -22,6 +22,9 @@
     <Filter Include="shaders\shadow">
       <UniqueIdentifier>{64f028d0-cb1a-4e16-a1ea-1a5719e3431e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\pointShadow">
+      <UniqueIdentifier>{94d9810c-4f6c-400d-8779-98c682513de2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -141,6 +144,21 @@
     </None>
     <None Include="Debug\shadow_mapping.vs">
       <Filter>shaders\shadow</Filter>
+    </None>
+    <None Include="Debug\point_shadow.frag">
+      <Filter>shaders\pointShadow</Filter>
+    </None>
+    <None Include="Debug\point_shadow.vs">
+      <Filter>shaders\pointShadow</Filter>
+    </None>
+    <None Include="Debug\point_shadow_depth.frag">
+      <Filter>shaders\pointShadow</Filter>
+    </None>
+    <None Include="Debug\point_shadow_depth.vs">
+      <Filter>shaders\pointShadow</Filter>
+    </None>
+    <None Include="Debug\point_shadow_depth.gs">
+      <Filter>shaders\pointShadow</Filter>
     </None>
   </ItemGroup>
 </Project>
