@@ -25,6 +25,9 @@
     <Filter Include="shaders\pointShadow">
       <UniqueIdentifier>{94d9810c-4f6c-400d-8779-98c682513de2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\normalmapping">
+      <UniqueIdentifier>{3ff82720-920e-4584-9b65-724dfca02101}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -159,6 +162,12 @@
     </None>
     <None Include="Debug\point_shadow_depth.gs">
       <Filter>shaders\pointShadow</Filter>
+    </None>
+    <None Include="Debug\normal_mapping.frag">
+      <Filter>shaders\normalmapping</Filter>
+    </None>
+    <None Include="Debug\normal_mapping.vs">
+      <Filter>shaders\normalmapping</Filter>
     </None>
   </ItemGroup>
 </Project>
