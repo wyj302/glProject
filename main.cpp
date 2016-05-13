@@ -61,7 +61,8 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 GLboolean gammaEnabled = false;
 
 GLuint planeVAO;
-GLboolean normalMapping = true;
+GLboolean parallax_mapping = true;
+GLfloat height_scale = 0.01;
 
 int main(int argc, char* argv[])
 {
@@ -101,8 +102,7 @@ int main(int argc, char* argv[])
 	glViewport(0, 0, screenWidth, screenHeight);
 
 	//深度测试
-	glEnable(GL_DEPTH_TEST);	
-	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);		
 
 	//line
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -110,16 +110,22 @@ int main(int argc, char* argv[])
 	Shader shader("normal_mapping.vs", "normal_mapping.frag");
 	
 	// Load textures
-	GLuint diffuseMap = loadTexture("brickwall.jpg", false);
-	GLuint normalMap = loadTexture("brickwall_normal.jpg", false);
+	GLuint diffuseMap = loadTexture("toy_box_diffuse.png", true);
+	GLuint normalMap = loadTexture("toy_box_normal.png", true);
+	GLuint heightMap = loadTexture("toy_box_disp.png", true);
+
+// 	GLuint diffuseMap = loadTexture("bricks2.jpg", false);
+// 	GLuint normalMap = loadTexture("bricks2_normal.jpg", false);
+// 	GLuint heightMap = loadTexture("bricks2_disp.jpg", false);
 
 
 	shader.Use();
 	glUniform1i(glGetUniformLocation(shader.Program, "diffuseMap"), 0);
 	glUniform1i(glGetUniformLocation(shader.Program, "normalMap"), 1);
+	glUniform1f(glGetUniformLocation(shader.Program, "depthMap"), 2);
 
 	// Light source
-	glm::vec3 lightPos(0.5f, 0.5f, 0.5f);
+	glm::vec3 lightPos(0.5f, 0.1f, 0.3f);
 		
 
 	while (!glfwWindowShouldClose(window))
@@ -147,15 +153,19 @@ int main(int argc, char* argv[])
 		
 		// 2. Render normal mapping quad
 		glm::mat4 model;
-		model = glm::rotate(model, (GLfloat)glfwGetTime() * -1, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+		//model = glm::rotate(model, (GLfloat)glfwGetTime() * -1, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		glUniform3fv(glGetUniformLocation(shader.Program, "lightPos"), 1, &lightPos[0]);
 		glUniform3fv(glGetUniformLocation(shader.Program, "viewPos"), 1, &camera.Position[0]);
-		glUniform1i(glGetUniformLocation(shader.Program, "normalMapping"), normalMapping);
+		glUniform1f(glGetUniformLocation(shader.Program, "height_scale"), height_scale);
+		glUniform1i(glGetUniformLocation(shader.Program, "parallax"), parallax_mapping);
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseMap);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, normalMap);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, heightMap);
 		RenderQuad();
 		
 		// render light
