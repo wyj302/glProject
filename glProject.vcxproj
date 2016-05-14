@@ -92,6 +92,10 @@
     <None Include="Debug\geometryShader.frag" />
     <None Include="Debug\geometryShader.gs" />
     <None Include="Debug\geometryShader.vs" />
+    <None Include="Debug\hdr.frag" />
+    <None Include="Debug\hdr.vs" />
+    <None Include="Debug\hdr\lighting.frag" />
+    <None Include="Debug\hdr\lighting.vs" />
     <None Include="Debug\instance.frag" />
     <None Include="Debug\instance.vs" />
     <None Include="Debug\lamp.frag" />

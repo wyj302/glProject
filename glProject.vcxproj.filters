@@ -28,6 +28,9 @@
     <Filter Include="shaders\normalmapping">
       <UniqueIdentifier>{3ff82720-920e-4584-9b65-724dfca02101}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\hdr">
+      <UniqueIdentifier>{07463608-327b-48f1-8686-f5338ecfe54f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -168,6 +171,18 @@
     </None>
     <None Include="Debug\normal_mapping.vs">
       <Filter>shaders\normalmapping</Filter>
+    </None>
+    <None Include="Debug\hdr.frag">
+      <Filter>shaders\hdr</Filter>
+    </None>
+    <None Include="Debug\hdr.vs">
+      <Filter>shaders\hdr</Filter>
+    </None>
+    <None Include="Debug\hdr\lighting.frag">
+      <Filter>shaders\hdr</Filter>
+    </None>
+    <None Include="Debug\hdr\lighting.vs">
+      <Filter>shaders\hdr</Filter>
     </None>
   </ItemGroup>
 </Project>
