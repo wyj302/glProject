@@ -48,92 +48,76 @@ bool keys[1024];
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
-bool firstMoust = true;
+
 GLfloat lastX = screenWidth / 2.0f;
 GLfloat lastY = screenHeight / 2.0f;
 
-GLfloat pitch = 0.0f;
-GLfloat yaw = 90.0f;
-GLfloat aspect = 45.0f;
 
 //camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 GLboolean gammaEnabled = false;
 
-GLuint planeVAO;
+
 GLboolean parallax_mapping = true;
-GLfloat height_scale = 0.01;
+GLfloat height_scale = 0.1;
 
 int main(int argc, char* argv[])
 {
 	
-	//git diff test
+	// Init GLFW
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	//glfwWindowHint(GLFW_SAMPLES, 4);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, "LearnOpenGL", nullptr, nullptr); // Windowed
 	glfwMakeContextCurrent(window);
 
-	//callback functions
+	// Set the required callback functions
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 
+	// Options
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW Window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-
+	// Initialize GLEW to setup the OpenGL Function pointers
 	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
-	{
-		std::cout << "Failed to initialize GLEW" << std::endl;
-		return -1;
-	}
+	glewInit();
 
+	// Define the viewport dimensions
 	glViewport(0, 0, screenWidth, screenHeight);
 
-	//深度测试
-	glEnable(GL_DEPTH_TEST);		
+	// Setup some OpenGL options
+	glEnable(GL_DEPTH_TEST);
 
-	//line
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		
+	// Setup and compile our shaders
 	Shader shader("normal_mapping.vs", "normal_mapping.frag");
-	
+
 	// Load textures
-	GLuint diffuseMap = loadTexture("toy_box_diffuse.png", true);
-	GLuint normalMap = loadTexture("toy_box_normal.png", true);
-	GLuint heightMap = loadTexture("toy_box_disp.png", true);
+// 	GLuint diffuseMap = loadTexture(FileSystem::getPath("resources/textures/bricks2.jpg").c_str());
+// 	GLuint normalMap = loadTexture(FileSystem::getPath("resources/textures/bricks2_normal.jpg").c_str());
+// 	GLuint heightMap = loadTexture(FileSystem::getPath("resources/textures/bricks2_disp.jpg").c_str());
+	GLuint diffuseMap = loadTexture("wood.png", false);
+	GLuint normalMap = loadTexture("toy_box_normal.png", false);
+	GLuint heightMap = loadTexture("toy_box_disp.png", false);
 
-// 	GLuint diffuseMap = loadTexture("bricks2.jpg", false);
-// 	GLuint normalMap = loadTexture("bricks2_normal.jpg", false);
-// 	GLuint heightMap = loadTexture("bricks2_disp.jpg", false);
-
-
+	// Set texture units 
 	shader.Use();
 	glUniform1i(glGetUniformLocation(shader.Program, "diffuseMap"), 0);
 	glUniform1i(glGetUniformLocation(shader.Program, "normalMap"), 1);
-	glUniform1f(glGetUniformLocation(shader.Program, "depthMap"), 2);
+	glUniform1i(glGetUniformLocation(shader.Program, "depthMap"), 2);
 
-	// Light source
-	glm::vec3 lightPos(0.5f, 0.1f, 0.3f);
+	// Light position
+	glm::vec3 lightPos(0.5f, 1.0f, 0.3f);
+
 		
-
 	while (!glfwWindowShouldClose(window))
 	{
 		//检查及调用事件
 		glfwPollEvents();		
 		do_movement();
-
 		
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
