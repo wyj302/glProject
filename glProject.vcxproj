@@ -83,6 +83,12 @@
   <ItemGroup>
     <None Include="Debug\antialiasing.frag" />
     <None Include="Debug\antialiasing.vs" />
+    <None Include="Debug\bloom.frag" />
+    <None Include="Debug\bloom.vs" />
+    <None Include="Debug\bloom_final.frag" />
+    <None Include="Debug\bloom_final.vs" />
+    <None Include="Debug\blur.frag" />
+    <None Include="Debug\blur.vs" />
     <None Include="Debug\debug_quad.frag" />
     <None Include="Debug\debug_quad.vs" />
     <None Include="Debug\depth.frag" />
@@ -100,6 +106,7 @@
     <None Include="Debug\instance.vs" />
     <None Include="Debug\lamp.frag" />
     <None Include="Debug\lamp.vs" />
+    <None Include="Debug\light_box.frag" />
     <None Include="Debug\model.frag" />
     <None Include="Debug\model.vs" />
     <None Include="Debug\normal.frag" />

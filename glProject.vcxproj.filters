@@ -31,6 +31,9 @@
     <Filter Include="shaders\hdr">
       <UniqueIdentifier>{07463608-327b-48f1-8686-f5338ecfe54f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\bloom">
+      <UniqueIdentifier>{4c67f3cc-63ef-4026-a5e0-ec06f6f174ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -183,6 +186,27 @@
     </None>
     <None Include="Debug\hdr\lighting.vs">
       <Filter>shaders\hdr</Filter>
+    </None>
+    <None Include="Debug\bloom.frag">
+      <Filter>shaders\bloom</Filter>
+    </None>
+    <None Include="Debug\bloom.vs">
+      <Filter>shaders\bloom</Filter>
+    </None>
+    <None Include="Debug\blur.frag">
+      <Filter>shaders\bloom</Filter>
+    </None>
+    <None Include="Debug\blur.vs">
+      <Filter>shaders\bloom</Filter>
+    </None>
+    <None Include="Debug\light_box.frag">
+      <Filter>shaders\bloom</Filter>
+    </None>
+    <None Include="Debug\bloom_final.frag">
+      <Filter>shaders\bloom</Filter>
+    </None>
+    <None Include="Debug\bloom_final.vs">
+      <Filter>shaders\bloom</Filter>
     </None>
   </ItemGroup>
 </Project>
