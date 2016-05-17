@@ -40,10 +40,6 @@ void RenderScene(Shader& shader);
 void RenderQuad();
 void RenderCube();
 //------------------------------------------------------------
-
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 103.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 bool keys[1024];
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
@@ -54,7 +50,7 @@ GLfloat lastY = screenHeight / 2.0f;
 
 
 //camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
 GLboolean gammaEnabled = false;
 
 
@@ -97,7 +93,7 @@ int main(int argc, char* argv[])
 	Shader shader("bloom.vs", "bloom.frag");
 	Shader shaderLight("bloom.vs", "light_box.frag");
 	Shader shaderBlur("blur.vs", "blur.frag");
-	Shader shaderBloomFinal("bloom_final.vs", "boom_final.frag");
+	Shader shaderBloomFinal("bloom_final.vs", "bloom_final.frag");
 
 
 	shaderBloomFinal.Use();
@@ -119,8 +115,8 @@ int main(int argc, char* argv[])
 	lightColors.push_back(glm::vec3(0.0f, 1.5f, 0.0f));
 
 
-	GLuint woodTexture = loadTexture("wood.png", false);
-	GLuint containerTexture = loadTexture("container2.png", false);
+	GLuint woodTexture = loadTexture("wood.png", true);
+	GLuint containerTexture = loadTexture("container2.png", true);
 
 	// Set up floating point framebuffer to render scene to
 	GLuint hdrFBO;
@@ -180,8 +176,8 @@ int main(int argc, char* argv[])
 	{
 		//检查及调用事件
 		glfwPollEvents();		
-		do_movement();
-		
+		do_movement();			
+
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
@@ -223,19 +219,19 @@ int main(int argc, char* argv[])
 		RenderCube();
 		model = glm::mat4();
 		model = glm::translate(model, glm::vec3(-1.0f, -1.0f, 2.0));
-		model = glm::rotate(model, 60.0f, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+		model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
 		model = glm::scale(model, glm::vec3(2.0));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		RenderCube();
 		model = glm::mat4();
 		model = glm::translate(model, glm::vec3(0.0f, 2.7f, 4.0));
-		model = glm::rotate(model, 23.0f, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+		model = glm::rotate(model, glm::radians(23.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
 		model = glm::scale(model, glm::vec3(2.5));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		RenderCube();
 		model = glm::mat4();
 		model = glm::translate(model, glm::vec3(-2.0f, 1.0f, -3.0));
-		model = glm::rotate(model, 124.0f, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+		model = glm::rotate(model, glm::radians(124.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
 		model = glm::scale(model, glm::vec3(2.0));
 		glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		RenderCube();
@@ -329,7 +325,7 @@ void RenderScene(Shader &shader)
 	RenderCube();
 	model = glm::mat4();
 	model = glm::translate(model, glm::vec3(-1.5f, 2.0f, -3.0));
-	model = glm::rotate(model, 60.0f, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+	model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
 	model = glm::scale(model, glm::vec3(1.5));
 	glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	RenderCube();
