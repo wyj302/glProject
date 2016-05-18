@@ -91,6 +91,10 @@
     <None Include="Debug\blur.vs" />
     <None Include="Debug\debug_quad.frag" />
     <None Include="Debug\debug_quad.vs" />
+    <None Include="Debug\deferred_light_box.frag" />
+    <None Include="Debug\deferred_light_box.vs" />
+    <None Include="Debug\deferred_shading.vs" />
+    <None Include="Debug\deferred_shading.frag" />
     <None Include="Debug\depth.frag" />
     <None Include="Debug\depth.vs" />
     <None Include="Debug\gamma_correction.frag" />
@@ -98,6 +102,8 @@
     <None Include="Debug\geometryShader.frag" />
     <None Include="Debug\geometryShader.gs" />
     <None Include="Debug\geometryShader.vs" />
+    <None Include="Debug\g_buffer.frag" />
+    <None Include="Debug\g_buffer.vs" />
     <None Include="Debug\hdr.frag" />
     <None Include="Debug\hdr.vs" />
     <None Include="Debug\hdr\lighting.frag" />

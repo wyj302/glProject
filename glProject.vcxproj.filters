@@ -34,6 +34,9 @@
     <Filter Include="shaders\bloom">
       <UniqueIdentifier>{4c67f3cc-63ef-4026-a5e0-ec06f6f174ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\deferred_shading">
+      <UniqueIdentifier>{7c644462-b68f-41bc-bfa5-ac41906f40c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -207,6 +210,24 @@
     </None>
     <None Include="Debug\bloom_final.vs">
       <Filter>shaders\bloom</Filter>
+    </None>
+    <None Include="Debug\deferred_light_box.frag">
+      <Filter>shaders\deferred_shading</Filter>
+    </None>
+    <None Include="Debug\deferred_light_box.vs">
+      <Filter>shaders\deferred_shading</Filter>
+    </None>
+    <None Include="Debug\deferred_shading.vs">
+      <Filter>shaders\deferred_shading</Filter>
+    </None>
+    <None Include="Debug\g_buffer.frag">
+      <Filter>shaders\deferred_shading</Filter>
+    </None>
+    <None Include="Debug\g_buffer.vs">
+      <Filter>shaders\deferred_shading</Filter>
+    </None>
+    <None Include="Debug\deferred_shading.frag">
+      <Filter>shaders\deferred_shading</Filter>
     </None>
   </ItemGroup>
 </Project>
