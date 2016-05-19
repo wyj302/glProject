@@ -12,7 +12,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
-
+#include <map>
 //glm
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -22,6 +22,10 @@
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
+
+//freetype
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 //#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 
@@ -59,6 +63,17 @@ GLboolean gammaEnabled = false;
 GLboolean bloom = true;
 GLfloat exposure = 1.0f;
 
+struct Character
+{
+	GLuint TextureID;
+	glm::ivec2 Size;
+	glm::ivec2 Bearing;
+	GLuint Advance;
+};
+
+std::map<GLchar, Character> Characters;
+GLuint VAO, VBO;
+void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
 
 int main(int argc, char* argv[])
 {
@@ -89,143 +104,83 @@ int main(int argc, char* argv[])
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
 	// Setup some OpenGL options
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Setup and compile our shaders
-	Shader shaderLightPass("deferred_shading.vs", "deferred_shading.frag");
-	Shader shaderGeometryPass("g_buffer.vs", "g_buffer.frag");
-	Shader shaderLightBox("deferred_light_box.vs", "deferred_light_box.frag");
-	Shader shaderDisplayFBOOutput("top_right.vs", "top_right.frag");
+	Shader shader("text.vs", "text.frag");
+	glm::mat4 projection = glm::ortho(0.0f, (GLfloat)SCR_HEIGHT, 0.0f, (GLfloat)SCR_HEIGHT);
+	shader.Use();
+	glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-	shaderLightPass.Use();
-	glUniform1i(glGetUniformLocation(shaderLightPass.Program, "gNormal"), 0);
-	glUniform1i(glGetUniformLocation(shaderLightPass.Program, "gPosition"), 1);
-	glUniform1i(glGetUniformLocation(shaderLightPass.Program, "gAlbedoSpec"), 2);
+	//freetype
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 
-// 	shaderDisplayFBOOutput.Use();
-// 	glUniform1i(glGetUniformLocation(shaderDisplayFBOOutput.Program, "fboAttachment"), 3);
-
-	//load model
-	Model cyborg("./nanosuit/nanosuit.obj");
-
+	// Load font as face
+	FT_Face face;
+	if (FT_New_Face(ft, "Arial/arial.ttf", 0, &face))
+		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 	
-	//object - Positions
-	std::vector<glm::vec3> objectPositions;
-	objectPositions.push_back(glm::vec3(-3.0, -3.0, -3.0));
-	objectPositions.push_back(glm::vec3(0.0, -3.0, -3.0));
-	objectPositions.push_back(glm::vec3(3.0, -3.0, -3.0));
-	objectPositions.push_back(glm::vec3(-3.0, -3.0, 0.0));
-	objectPositions.push_back(glm::vec3(0.0, -3.0, 0.0));
-	objectPositions.push_back(glm::vec3(3.0, -3.0, 0.0));
-	objectPositions.push_back(glm::vec3(-3.0, -3.0, 3.0));
-	objectPositions.push_back(glm::vec3(0.0, -3.0, 3.0));
-	objectPositions.push_back(glm::vec3(3.0, -3.0, 3.0));
+	FT_Set_Pixel_Sizes(face, 0, 48);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	GLfloat top_vertices[] = {
-		// First triangle
-		1.0f, 1.0f, 0.0f,  1.0f, 1.0f,// Top Right
-		1.0f, 0.5f, 0.0f,  1.0f, 0.0f,// Bottom Right
-		0.5f, 1.0f, 0.0f, 0.0f, 1.0f,// Top Left 
-		// Second triangle
-		1.0f, 0.5f, 0.0f,  1.0f, 0.0f,// Bottom Right
-		0.5f, 0.5f, 0.0f,  0.0f, 0.0f,// Bottom Left
-		0.5f, 1.0f, 0.0f , 0.0f, 1.0f  // Top Left
-	};
-
-	GLuint top_VAO, VBO;
-	glGenVertexArrays(1, &top_VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(top_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(top_vertices), top_vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(0);
-
-	//fbo
-// 	GLuint framebuffer;
-// 	glGenFramebuffers(1, &framebuffer);
-// 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-// 
-// 	// - Normal color buffer
-// 	GLuint fboAttachment;
-// 	glGenTextures(1, &fboAttachment);
-// 	glBindTexture(GL_TEXTURE_2D, fboAttachment);
-// 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH / 4, SCR_HEIGHT / 4, 0, GL_RGB, GL_FLOAT, NULL);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboAttachment, 0);
-
-
-	// lights Positions- Colors
-	const GLuint NR_LIGHTS = 32;
-	std::vector<glm::vec3> lightPositions;
-	std::vector<glm::vec3> lightColors;
-	srand(13);
-
-	for (size_t i = 0; i < NR_LIGHTS; i++)
+	//
+	for (GLubyte c = 0; c < 128; c++)
 	{
-		// Calculate slightly random offsets
-		GLfloat xPos = ((rand() % 100) / 100.0) * 6.0 - 3.0;
-		GLfloat yPos = ((rand() % 100) / 100.0) * 6.0 - 4.0;
-		GLfloat zPos = ((rand() % 100) / 100.0) * 6.0 - 3.0;
-		lightPositions.push_back(glm::vec3(xPos, yPos, zPos));
-		// Also calculate random color
-		GLfloat rColor = ((rand() % 100) / 200.0f) + 0.5; // Between 0.5 and 1.0
-		GLfloat gColor = ((rand() % 100) / 200.0f) + 0.5; // Between 0.5 and 1.0
-		GLfloat bColor = ((rand() % 100) / 200.0f) + 0.5; // Between 0.5 and 1.0
-		lightColors.push_back(glm::vec3(rColor, gColor, bColor));
+		// Load character glyph 
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
+		// Generate texture
+		GLuint texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+			);
+		// Set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// Now store character for later use
+		Character character = {
+			texture,
+			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			face->glyph->advance.x
+		};
+		Characters.insert(std::pair<GLchar, Character>(c, character));
 	}
-	
+	glBindTexture(GL_TEXTURE_2D, 0);
+	// Destroy FreeType once we're finished
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
 
-	GLuint gBuffer;
-	glGenFramebuffers(1, &gBuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-	GLuint gPosition, gNormal, gAlbedoSpec;
 
-	// - Position color buffer
-	glGenTextures(1, &gPosition);
-	glBindTexture(GL_TEXTURE_2D, gPosition);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
-
-	// - Normal color buffer
-	glGenTextures(1, &gNormal);
-	glBindTexture(GL_TEXTURE_2D, gNormal);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
-
-	// - Color + Specular color buffer
-	glGenTextures(1, &gAlbedoSpec);
-	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
-
-	// - Tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
-	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-	glDrawBuffers(3, attachments);
-
-	GLuint rboDepth;
-	glGenRenderbuffers(1, &rboDepth);
-	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
-	// - Finally check if framebuffer is complete
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Framebuffer not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	// Configure VAO/VBO for texture quads
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)* 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 		
 	while (!glfwWindowShouldClose(window))
 	{
@@ -238,84 +193,12 @@ int main(int argc, char* argv[])
 		lastFrame = currentFrame;
 		calcFPS(window, lastFrame);
 
-		// 1. geometry pass
-		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)SCR_WIDTH/(GLfloat)SCR_HEIGHT, 0.1f, 100.f);
-		glm::mat4 view = camera.GetViewMatrix();
-		glm::mat4 model;
-		shaderGeometryPass.Use();
-		glUniformMatrix4fv(glGetUniformLocation(shaderGeometryPass.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(shaderGeometryPass.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		for (size_t i = 0; i < objectPositions.size(); i++)
-		{
-			model = glm::mat4();
-			model = glm::translate(model, objectPositions[i]);
-			model = glm::scale(model, glm::vec3(0.25f));
-			glUniformMatrix4fv(glGetUniformLocation(shaderGeometryPass.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			cyborg.Draw(shaderGeometryPass);
-		}
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		
-		// 2. lighting pass
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		shaderLightPass.Use();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, gNormal);
-		
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, gPosition);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
-
-		for (size_t i = 0; i < lightPositions.size(); i++)
-		{
-			glUniform3fv(glGetUniformLocation(shaderLightPass.Program, ("lights[" + std::to_string(i) + "].Position").c_str()), 1, &lightPositions[i][0]);
-			glUniform3fv(glGetUniformLocation(shaderLightPass.Program, ("lights[" + std::to_string(i) + "].Color").c_str()), 1, &lightColors[i][0]);
-
-			const GLfloat constant = 1.0;
-			const GLfloat linear = 0.7;
-			const GLfloat quadratic = 1.8;
-
-			glUniform1f(glGetUniformLocation(shaderLightPass.Program, ("lights[" + std::to_string(i) + "].Linear").c_str()), linear);
-			glUniform1f(glGetUniformLocation(shaderLightPass.Program, ("lights[" + std::to_string(i) + "].Quadratic").c_str()), quadratic);
-		}
-		glUniform3fv(glGetUniformLocation(shaderLightPass.Program, "viewPos"), 1, &camera.Position[0]);
-
-		RenderQuad();
-
-		//
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-		glBlitFramebuffer(0, 0, SCR_WIDTH, SCR_HEIGHT, 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		//render light box
-		shaderLightBox.Use();
-
-		glUniformMatrix4fv(glGetUniformLocation(shaderLightBox.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(glGetUniformLocation(shaderLightBox.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		for (size_t i = 0; i < lightPositions.size(); i++)
-		{
-			model = glm::mat4();
-			model = glm::translate(model, lightPositions[i]);
-			model = glm::scale(model, glm::vec3(0.25f));
-			glUniformMatrix4fv(glGetUniformLocation(shaderLightBox.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			glUniform3fv(glGetUniformLocation(shaderLightBox.Program, "lightColor"), 1, &lightColors[i][0]);
-			RenderCube();
-		}
-
-		//
-		shaderDisplayFBOOutput.Use();
-		glBindVertexArray(top_VAO);
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, gPosition);
-
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
+		//render text
+		RenderText(shader, "This is sample text", 25.0f, 25.0f, 1.2f, glm::vec3(0.5f, 0.8f, 0.2f));
+		RenderText(shader, "LearnOpenGL.com", 440.0f, 570.0f, 0.5f, glm::vec3(0.3f, 0.7f, 0.9f));
 
 		// Swap the buffers
 		glfwSwapBuffers(window);
@@ -325,13 +208,49 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void DisplayFramebufferTexture(GLuint textureID)
+void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
 {
-	if (!notInitialized)
+	// Activate corresponding render state	
+	shader.Use();
+	glUniform3f(glGetUniformLocation(shader.Program, "textColor"), color.x, color.y, color.z);
+	glActiveTexture(GL_TEXTURE0);
+	glBindVertexArray(VAO);
+
+	// Iterate through all characters
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++)
 	{
-		// initialize shader and vao w/ NDC vertex coordinates at top-right of the screen
-		//[...]
+		Character ch = Characters[*c];
+
+		GLfloat xpos = x + ch.Bearing.x * scale;
+		GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+		GLfloat w = ch.Size.x * scale;
+		GLfloat h = ch.Size.y * scale;
+		// Update VBO for each character
+		GLfloat vertices[6][4] = {
+			{ xpos, ypos + h, 0.0, 0.0 },
+			{ xpos, ypos, 0.0, 1.0 },
+			{ xpos + w, ypos, 1.0, 1.0 },
+
+			{ xpos, ypos + h, 0.0, 0.0 },
+			{ xpos + w, ypos, 1.0, 1.0 },
+			{ xpos + w, ypos + h, 1.0, 0.0 }
+		};
+		// Render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		// Update content of VBO memory
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// Render quad
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
 	}
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void RenderScene(Shader &shader)

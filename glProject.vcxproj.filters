@@ -37,6 +37,9 @@
     <Filter Include="shaders\deferred_shading">
       <UniqueIdentifier>{7c644462-b68f-41bc-bfa5-ac41906f40c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\text">
+      <UniqueIdentifier>{965356e0-09a3-4161-884b-cdbbb6c29135}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -234,6 +237,12 @@
     </None>
     <None Include="Debug\top_right.vs">
       <Filter>shaders\deferred_shading</Filter>
+    </None>
+    <None Include="Debug\text.frag">
+      <Filter>shaders\text</Filter>
+    </None>
+    <None Include="Debug\text.vs">
+      <Filter>shaders\text</Filter>
     </None>
   </ItemGroup>
 </Project>

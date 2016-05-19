@@ -46,13 +46,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\vendor\glew-1.13.0\include;.\vendor\glfw\include;.\vendor\soil\Simple OpenGL Image Library\src;.\vendor\glm-master\glm-master;.\vendor\assimp-3.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\vendor\glew-1.13.0\include;.\vendor\glfw\include;.\vendor\soil\Simple OpenGL Image Library\src;.\vendor\glm-master\glm-master;.\vendor\assimp-3.1.1\include;.\vendor\freetype-2.6.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\vendor\glew-1.13.0\lib\Release\Win32;.\vendor\glfw\lib;.\vendor\soil\Simple OpenGL Image Library\lib;.\vendor\assimp-3.1.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;SOIL.lib;assimpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\vendor\glew-1.13.0\lib\Release\Win32;.\vendor\glfw\lib;.\vendor\soil\Simple OpenGL Image Library\lib;.\vendor\assimp-3.1.1\lib;.\vendor\freetype-2.6.2\objs\vc2010\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;glfw3.lib;SOIL.lib;assimpd.lib;freetype262d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBC.lib</IgnoreSpecificDefaultLibraries>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -133,6 +133,8 @@
     <None Include="Debug\shadow_mapping_depth.vs" />
     <None Include="Debug\skybox.frag" />
     <None Include="Debug\skybox.vs" />
+    <None Include="Debug\text.frag" />
+    <None Include="Debug\text.vs" />
     <None Include="Debug\top_right.frag" />
     <None Include="Debug\top_right.vs" />
     <None Include="Debug\ubo.vs" />
