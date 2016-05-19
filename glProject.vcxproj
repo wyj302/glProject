@@ -133,6 +133,8 @@
     <None Include="Debug\shadow_mapping_depth.vs" />
     <None Include="Debug\skybox.frag" />
     <None Include="Debug\skybox.vs" />
+    <None Include="Debug\top_right.frag" />
+    <None Include="Debug\top_right.vs" />
     <None Include="Debug\ubo.vs" />
     <None Include="Debug\ubo_blue.frag" />
     <None Include="Debug\ubo_green.frag" />

@@ -229,5 +229,11 @@
     <None Include="Debug\deferred_shading.frag">
       <Filter>shaders\deferred_shading</Filter>
     </None>
+    <None Include="Debug\top_right.frag">
+      <Filter>shaders\deferred_shading</Filter>
+    </None>
+    <None Include="Debug\top_right.vs">
+      <Filter>shaders\deferred_shading</Filter>
+    </None>
   </ItemGroup>
 </Project>

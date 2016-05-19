@@ -39,6 +39,8 @@ GLuint generateMultiSampleTexture(GLuint samples);
 void RenderScene(Shader& shader);
 void RenderQuad();
 void RenderCube();
+void DisplayFramebufferTexture(GLuint textureID);
+bool notInitialized = false;
 //------------------------------------------------------------
 bool keys[1024];
 GLfloat deltaTime = 0.0f;
@@ -93,11 +95,15 @@ int main(int argc, char* argv[])
 	Shader shaderLightPass("deferred_shading.vs", "deferred_shading.frag");
 	Shader shaderGeometryPass("g_buffer.vs", "g_buffer.frag");
 	Shader shaderLightBox("deferred_light_box.vs", "deferred_light_box.frag");
+	Shader shaderDisplayFBOOutput("top_right.vs", "top_right.frag");
 
 	shaderLightPass.Use();
-	glUniform1i(glGetUniformLocation(shaderLightPass.Program, "gPosition"), 0);
-	glUniform1i(glGetUniformLocation(shaderLightPass.Program, "gNormal"), 1);
+	glUniform1i(glGetUniformLocation(shaderLightPass.Program, "gNormal"), 0);
+	glUniform1i(glGetUniformLocation(shaderLightPass.Program, "gPosition"), 1);
 	glUniform1i(glGetUniformLocation(shaderLightPass.Program, "gAlbedoSpec"), 2);
+
+// 	shaderDisplayFBOOutput.Use();
+// 	glUniform1i(glGetUniformLocation(shaderDisplayFBOOutput.Program, "fboAttachment"), 3);
 
 	//load model
 	Model cyborg("./nanosuit/nanosuit.obj");
@@ -114,6 +120,45 @@ int main(int argc, char* argv[])
 	objectPositions.push_back(glm::vec3(-3.0, -3.0, 3.0));
 	objectPositions.push_back(glm::vec3(0.0, -3.0, 3.0));
 	objectPositions.push_back(glm::vec3(3.0, -3.0, 3.0));
+
+	GLfloat top_vertices[] = {
+		// First triangle
+		1.0f, 1.0f, 0.0f,  1.0f, 1.0f,// Top Right
+		1.0f, 0.5f, 0.0f,  1.0f, 0.0f,// Bottom Right
+		0.5f, 1.0f, 0.0f, 0.0f, 1.0f,// Top Left 
+		// Second triangle
+		1.0f, 0.5f, 0.0f,  1.0f, 0.0f,// Bottom Right
+		0.5f, 0.5f, 0.0f,  0.0f, 0.0f,// Bottom Left
+		0.5f, 1.0f, 0.0f , 0.0f, 1.0f  // Top Left
+	};
+
+	GLuint top_VAO, VBO;
+	glGenVertexArrays(1, &top_VAO);
+	glGenBuffers(1, &VBO);
+
+	glBindVertexArray(top_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(top_vertices), top_vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(0);
+
+	//fbo
+// 	GLuint framebuffer;
+// 	glGenFramebuffers(1, &framebuffer);
+// 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+// 
+// 	// - Normal color buffer
+// 	GLuint fboAttachment;
+// 	glGenTextures(1, &fboAttachment);
+// 	glBindTexture(GL_TEXTURE_2D, fboAttachment);
+// 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH / 4, SCR_HEIGHT / 4, 0, GL_RGB, GL_FLOAT, NULL);
+// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboAttachment, 0);
 
 
 	// lights Positions- Colors
@@ -216,10 +261,10 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shaderLightPass.Use();
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, gPosition);
+		glBindTexture(GL_TEXTURE_2D, gNormal);
 		
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, gNormal);
+		glBindTexture(GL_TEXTURE_2D, gPosition);
 
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
@@ -262,12 +307,31 @@ int main(int argc, char* argv[])
 			RenderCube();
 		}
 
+		//
+		shaderDisplayFBOOutput.Use();
+		glBindVertexArray(top_VAO);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, gPosition);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+
 		// Swap the buffers
 		glfwSwapBuffers(window);
 	}
 
 	glfwTerminate();
 	return 0;
+}
+
+void DisplayFramebufferTexture(GLuint textureID)
+{
+	if (!notInitialized)
+	{
+		// initialize shader and vao w/ NDC vertex coordinates at top-right of the screen
+		//[...]
+	}
 }
 
 void RenderScene(Shader &shader)
