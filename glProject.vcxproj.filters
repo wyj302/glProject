@@ -40,6 +40,9 @@
     <Filter Include="shaders\text">
       <UniqueIdentifier>{965356e0-09a3-4161-884b-cdbbb6c29135}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\frame_buffer">
+      <UniqueIdentifier>{154bbb3e-9bb9-4565-a2b3-6f861bf039f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -243,6 +246,18 @@
     </None>
     <None Include="Debug\text.vs">
       <Filter>shaders\text</Filter>
+    </None>
+    <None Include="Debug\frame_buffer_screen.vs">
+      <Filter>shaders\frame_buffer</Filter>
+    </None>
+    <None Include="Debug\frame_buffer_screen.frag">
+      <Filter>shaders\frame_buffer</Filter>
+    </None>
+    <None Include="Debug\frame_buffer.frag">
+      <Filter>shaders\frame_buffer</Filter>
+    </None>
+    <None Include="Debug\frame_buffer.vs">
+      <Filter>shaders\frame_buffer</Filter>
     </None>
   </ItemGroup>
 </Project>

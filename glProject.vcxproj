@@ -97,6 +97,10 @@
     <None Include="Debug\deferred_shading.frag" />
     <None Include="Debug\depth.frag" />
     <None Include="Debug\depth.vs" />
+    <None Include="Debug\frame_buffer.frag" />
+    <None Include="Debug\frame_buffer.vs" />
+    <None Include="Debug\frame_buffer_screen.frag" />
+    <None Include="Debug\frame_buffer_screen.vs" />
     <None Include="Debug\gamma_correction.frag" />
     <None Include="Debug\gamma_correction.vs" />
     <None Include="Debug\geometryShader.frag" />
