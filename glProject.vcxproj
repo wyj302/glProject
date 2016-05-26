@@ -137,6 +137,12 @@
     <None Include="Debug\shadow_mapping_depth.vs" />
     <None Include="Debug\skybox.frag" />
     <None Include="Debug\skybox.vs" />
+    <None Include="Debug\ssao.frag" />
+    <None Include="Debug\ssao.vs" />
+    <None Include="Debug\ssao_blur.frag" />
+    <None Include="Debug\ssao_geometry.frag" />
+    <None Include="Debug\ssao_geometry.vs" />
+    <None Include="Debug\ssao_lighting.frag" />
     <None Include="Debug\text.frag" />
     <None Include="Debug\text.vs" />
     <None Include="Debug\top_right.frag" />

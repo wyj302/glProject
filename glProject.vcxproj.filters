@@ -43,6 +43,9 @@
     <Filter Include="shaders\frame_buffer">
       <UniqueIdentifier>{154bbb3e-9bb9-4565-a2b3-6f861bf039f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\ssao">
+      <UniqueIdentifier>{754d05f0-8df8-41ea-bed8-76ebe635b429}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -258,6 +261,24 @@
     </None>
     <None Include="Debug\frame_buffer.vs">
       <Filter>shaders\frame_buffer</Filter>
+    </None>
+    <None Include="Debug\ssao.frag">
+      <Filter>shaders\ssao</Filter>
+    </None>
+    <None Include="Debug\ssao.vs">
+      <Filter>shaders\ssao</Filter>
+    </None>
+    <None Include="Debug\ssao_blur.frag">
+      <Filter>shaders\ssao</Filter>
+    </None>
+    <None Include="Debug\ssao_geometry.frag">
+      <Filter>shaders\ssao</Filter>
+    </None>
+    <None Include="Debug\ssao_geometry.vs">
+      <Filter>shaders\ssao</Filter>
+    </None>
+    <None Include="Debug\ssao_lighting.frag">
+      <Filter>shaders\ssao</Filter>
     </None>
   </ItemGroup>
 </Project>
