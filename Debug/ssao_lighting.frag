@@ -25,7 +25,7 @@ void main()
     float AmbientOcclusion = texture(ssao, TexCoords).r;
     
     // Then calculate lighting as usual
-    vec3 ambient = vec3(0.3 * AmbientOcclusion); // <-- this is where we use ambient occlusion
+    vec3 ambient = vec3(0.8 * AmbientOcclusion); // <-- this is where we use ambient occlusion
     vec3 lighting  = ambient; 
     vec3 viewDir  = normalize(-FragPos); // Viewpos is (0.0.0)
     // Diffuse
@@ -40,7 +40,7 @@ void main()
     float attenuation = 1.0 / (1.0 + light.Linear * distance + light.Quadratic * distance * distance);
     diffuse *= attenuation;
     specular *= attenuation;
-    lighting += diffuse + specular;
+    //lighting += diffuse + specular;
 
     FragColor = vec4(lighting, 1.0);
 }
