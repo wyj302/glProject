@@ -135,7 +135,8 @@ int main(int argc, char* argv[])
 	glUniform1i(glGetUniformLocation(shaderSSAO.Program, "texNoise"), 2);
 
 	//model object
-	Model nanosuit("./nanosuit/nanosuit.obj");
+	//Model nanosuit("./nanosuit/nanosuit.obj");
+	Model nanosuit("./BX-008.obj");
 
 	glm::vec3 lightPos = glm::vec3(2.0f, 4.0f, -2.0f);
 	glm::vec3 lightColor = glm::vec3(0.2, 0.2, 0.7);
@@ -277,7 +278,7 @@ int main(int argc, char* argv[])
 		model = glm::mat4();
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 5.0));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
-		model = glm::scale(model, glm::vec3(0.5f));
+		model = glm::scale(model, glm::vec3(0.02f));
 		glUniformMatrix4fv(glGetUniformLocation(shaderGeometryPass.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		nanosuit.Draw(shaderGeometryPass);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
